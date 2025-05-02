@@ -305,7 +305,7 @@ fun DetailScreen(
 
                     if (filteredReviews.isNotEmpty()) {
                         items(filteredReviews) { review ->
-                            ReviewCard(review)
+                            ReviewCard(review, viewModel)
                         }
                     } else {
                         item {

@@ -32,13 +32,14 @@ class FirebaseReviewVM: ViewModel(){
     private val database = Firebase.database("https://aklatopia-default-rtdb.asia-southeast1.firebasedatabase.app/")
 
     val reviews = mutableStateListOf<Review>()
+    val ref = database.getReference("reviews")
 
     init {
         getReviewsRT()
     }
 
     fun getReviews(){
-        database.getReference("reviews")
+        ref
             .get()
             .addOnCompleteListener {task ->
                 task.result.getValue<List<Review>>()?.let {
@@ -49,7 +50,7 @@ class FirebaseReviewVM: ViewModel(){
     }
 
     fun getReviewsRT() {
-        database.getReference("reviews").addValueEventListener(object : ValueEventListener {
+        ref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot
             ) {
                 reviews.clear()
@@ -66,9 +67,13 @@ class FirebaseReviewVM: ViewModel(){
     }
 
     fun uploadReview(review: Review){
-        database.getReference("reviews")
+        ref
             .push()
             .setValue(review.toJSON())
+    }
+
+    fun deleteReview(reviewId: String){
+        ref.child(reviewId).removeValue()
     }
 }
 
