@@ -1,5 +1,7 @@
 package com.example.aklatopia.auth.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -23,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.aklatopia.GoogleSignInButton
 import com.example.aklatopia.assets.BeigeBackButton
 import com.example.aklatopia.assets.BlueBackButton
 import com.example.aklatopia.R
@@ -141,15 +145,18 @@ fun Login(navHostController: NavHostController){
                             .height(60.dp)
                     )
 
-                    Text(
-                        text = "Or Sign in With Google",
-                        color = Green,
-                        fontFamily = FontFamily(Font(R.font.poppins_medium)),
-                        fontSize = 14.sp,
-                        modifier = Modifier
-                            .clickable { navHostController.navigate("main") }
-                            .align(Alignment.CenterHorizontally)
-                    )
+//                    Text(
+//                        text = "Or Sign in With Google",
+//                        color = Green,
+//                        fontFamily = FontFamily(Font(R.font.poppins_medium)),
+//                        fontSize = 14.sp,
+//                        modifier = Modifier
+//                            .clickable {
+//                                navHostController.navigate("main")
+//                            }
+//                            .align(Alignment.CenterHorizontally)
+//                    )
+                    GoogleSignInButton(navHostController)
                     Image(
                         painter = painterResource(id = R.drawable.google_icon),
                         contentDescription = "Google",
@@ -181,11 +188,4 @@ fun Login(navHostController: NavHostController){
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LoginPreview(){
-    val nav = rememberNavController()
-    Login(nav)
 }
