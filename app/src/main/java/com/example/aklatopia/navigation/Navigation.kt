@@ -22,6 +22,7 @@ import com.example.aklatopia.home.screens.Search
 import com.example.aklatopia.auth.screens.SignUp
 import com.example.aklatopia.auth.screens.GetStarted
 import com.example.aklatopia.data.FirebaseReviewVM
+import com.example.aklatopia.home.components.BookVM
 
 @Composable
 fun StartingNav() {

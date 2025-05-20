@@ -33,7 +33,10 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -51,10 +54,13 @@ import androidx.navigation.NavHostController
 import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
+import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.data.FirebaseReviewVM
 import com.example.aklatopia.data.Review
 import com.example.aklatopia.data.books
 import com.example.aklatopia.home.components.AskForReview
+import com.example.aklatopia.home.components.BookVM
+import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.home.components.DetailHeader
 import com.example.aklatopia.home.components.RateDialog
 import com.example.aklatopia.home.components.RatingsDisplay
@@ -66,17 +72,28 @@ import com.example.aklatopia.ui.theme.Green
 import com.example.aklatopia.ui.theme.OffWhite
 import com.example.aklatopia.ui.theme.Red
 import com.example.aklatopia.ui.theme.Yellow
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DetailScreen(
     navHostController: NavHostController,
     title: String,
-    viewModel: FirebaseReviewVM
+    viewModel: FirebaseReviewVM,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    val bookz = remember { mutableStateListOf<Bookz>() }
+    LaunchedEffect(Unit){
+        withContext(Dispatchers.IO){
+            val result = SupabaseClient.client.from("Books").select().decodeList<Bookz>()
+            bookz.addAll(result)
+        }
+    }
 
     Scaffold(
         snackbarHost = {
@@ -324,6 +341,14 @@ fun DetailScreen(
                                 )
                             }
                         }
+                    }
+
+                    items(bookz) {item ->
+                        Text(
+                            text = item.title,
+                            color = DarkBlue,
+                            fontSize = 20.sp
+                        )
                     }
 
                     item {

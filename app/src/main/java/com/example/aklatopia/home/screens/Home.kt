@@ -46,16 +46,29 @@ import androidx.navigation.compose.rememberNavController
 import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.ImageCard
 import com.example.aklatopia.R
+import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.WindowInfo
+import com.example.aklatopia.assets.SupabaseImageCard
 import com.example.aklatopia.data.books
+import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.home.components.HomeBookCard
 import com.example.aklatopia.rememberWindowInfo
 import com.example.aklatopia.ui.theme.*
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun Home(navHostController: NavHostController){
     val windowInfo = rememberWindowInfo()
     val isScreenRotated = windowInfo.screenWidthInfo is WindowInfo.WindowType.Medium
+    val bookz = remember { mutableStateListOf<Bookz>() }
+    LaunchedEffect(Unit){
+        withContext(Dispatchers.IO){
+            val result = SupabaseClient.client.from("Books").select().decodeList<Bookz>()
+            bookz.addAll(result)
+        }
+    }
     Scaffold(
         topBar = {
             Box(modifier = Modifier
@@ -105,7 +118,23 @@ fun Home(navHostController: NavHostController){
                     }
                 }
             } else{
-                BookGrid(navHostController)
+                //BookGrid(navHostController)
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ){
+
+                    items(bookz){ book->
+                        SupabaseImageCard(
+                            pic = book.cover,
+                            desc = book.desc,
+                            title = book.title,
+                            //navHostController = navHostController
+                        )
+                    }
+                }
             }
 
         }
@@ -145,23 +174,32 @@ fun SearchBarBtn(navHostController: NavHostController, modifier: Modifier, isScr
     }
 }
 
-@Composable
-fun BookGrid(navHostController: NavHostController){
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ){
-        items(books){ book->
-            ImageCard(
-                pic = book.cover,
-                desc = book.desc,
-                title = book.title,
-                navHostController = navHostController
-            )
-        }
-    }
-}
+//@Composable
+//fun BookGrid(navHostController: NavHostController){
+//    LazyVerticalGrid(
+//        columns = GridCells.Fixed(2),
+//        verticalArrangement = Arrangement.spacedBy(10.dp),
+//        horizontalArrangement = Arrangement.SpaceEvenly
+//    ){
+//        val bookz = remember { mutableStateListOf<Bookz>() }
+//        LaunchedEffect(Unit){
+//            withContext(Dispatchers.IO){
+//                val result = SupabaseClient.client.from("Books").select().decodeList<Bookz>()
+//                bookz.addAll(result)
+//            }
+//        }
+//        items(bookz){ book->
+//            SupabaseImageCard(
+//                pic = book.cover,
+//                desc = book.desc,
+//                title = book.title,
+//                //navHostController = navHostController
+//            )
+//        }
+//    }
+//}
+
+
 
 @Preview(showBackground = true)
 @Composable

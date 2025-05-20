@@ -1,7 +1,9 @@
 package com.example.aklatopia.data
 
 import com.example.aklatopia.R
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class BookCategory(val displayName: String, val progress: Int) {
     companion object {
         val CULTURES_AND_TRADITIONS = BookCategory("Cultures and Traditions", 5)
