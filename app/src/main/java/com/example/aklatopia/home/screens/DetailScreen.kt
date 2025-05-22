@@ -27,6 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -52,17 +53,21 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
 import com.example.aklatopia.SupabaseClient
+import com.example.aklatopia.data.Favorite
+import com.example.aklatopia.data.FavoritesVM
 import com.example.aklatopia.data.FirebaseRatingsVM
 import com.example.aklatopia.data.FirebaseReviewVM
 import com.example.aklatopia.data.Rating
 import com.example.aklatopia.data.Review
 import com.example.aklatopia.data.books
 import com.example.aklatopia.data.user
+import com.example.aklatopia.home.components.AddToFavoritesBtn
 import com.example.aklatopia.home.components.AskForReview
 import com.example.aklatopia.home.components.BookVM
 import com.example.aklatopia.home.components.Bookz
@@ -91,16 +96,27 @@ fun DetailScreen(
     navHostController: NavHostController,
     title: String,
     ReviewVM: FirebaseReviewVM,
-    RatingVM: FirebaseRatingsVM
+    RatingVM: FirebaseRatingsVM,
+    favoritesVM: FavoritesVM
 ) {
+    val currentDate = LocalDate.now()
+    val formattedDate = currentDate.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"))
+
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
     val SupabaseBooks = remember { mutableStateListOf<Bookz>() }
 
-    val currentDate = LocalDate.now()
-    val formattedDate = currentDate.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"))
+    val book = books[books.indexOfFirst { it.title == title }]
 
+    val favoritesId = remember { mutableStateListOf<Int>() }
+
+    LaunchedEffect(favoritesVM.favorites) {
+        favoritesId.clear()
+        favoritesId.addAll(favoritesVM.favorites.map { it.bookId })
+    }
+
+    val isFavoriteBook = favoritesId.contains(book.id)
 
     LaunchedEffect(Unit){
         withContext(Dispatchers.IO){
@@ -137,7 +153,6 @@ fun DetailScreen(
                     horizontalAlignment = Alignment.Start,
                 ) {
                     //eto pala
-                    val book = books[books.indexOfFirst { it.title == title }]
 
                     item {
 
@@ -194,38 +209,18 @@ fun DetailScreen(
                                 .padding(vertical = 10.dp),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            Button(
-                                onClick = {
-                                    coroutineScope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            message = "Added to Favorites",
-                                            duration = SnackbarDuration.Short
-                                        )
-                                    }
-                                },
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(190.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Red
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Favorite,
-                                    contentDescription = null,
-                                    tint = Yellow,
-                                    modifier = Modifier
-                                        .size(22.dp)
-                                )
-                                Text(
-                                    text = "Add to Favorites",
-                                    fontFamily = FontFamily(Font(R.font.poppins_extrabold)),
-                                    color = Beige,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier
-                                        .padding(start = 5.dp)
-                                )
-                            }
+                            //TODO
+
+                            AddToFavoritesBtn(
+                                coroutineScope = coroutineScope,
+                                snackbarHostState = snackbarHostState,
+                                favoritesVM = favoritesVM,
+                                bookId = book.id,
+                                favoritesId = favoritesId,
+                                isFavoriteBook = isFavoriteBook
+                            )
+
+
                             Button(
                                 onClick = {showRateDialog = true},
                                 modifier = Modifier

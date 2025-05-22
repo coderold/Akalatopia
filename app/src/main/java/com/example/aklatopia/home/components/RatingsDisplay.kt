@@ -76,8 +76,9 @@ fun RatingsDisplay(
 
             Text(
                 text = "$totalRatings " +
-                        if (totalRatings == 0 || totalRatings == 1)"Rating" else "Ratings"+
-                                " - $totalReviews " +
+                        if (totalRatings == 0 || totalRatings == 1) "Rating" + " - $totalReviews " +
+                                if (totalReviews == 0 || totalReviews == 1) "Review" else "Reviews"
+                        else "Ratings" + " - $totalReviews " +
                                 if (totalReviews == 0 || totalReviews == 1) "Review" else "Reviews",
                 color = DarkBlue,
                 fontFamily = FontFamily(Font(R.font.poppins_medium)),

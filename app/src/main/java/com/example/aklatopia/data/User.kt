@@ -1,5 +1,9 @@
 package com.example.aklatopia.data
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.example.aklatopia.SupabaseClient
 import io.github.jan.supabase.gotrue.auth
 
@@ -30,3 +34,16 @@ val user = User(
     bio = "“hindi mahalagang magwagi, aaaaaaaaaaaaaaa” - Lebron James",
     avatar = "https://res.cloudinary.com/dzdivpj68/image/upload/user_profile_pic_sdeooq.png"
 )
+
+//var user by remember {
+//    mutableStateOf(
+//        User(
+//            userId = "user1",
+//            name = "Matthew Molina",
+//            userName = "@posahh",
+//            bio = "“hindi mahalagang magwagi, aaaaaaaaaaaaaaa” - Lebron James",
+//            avatar = "https://res.cloudinary.com/dzdivpj68/image/upload/user_profile_pic_sdeooq.png"
+//        )
+//    )
+//}
+

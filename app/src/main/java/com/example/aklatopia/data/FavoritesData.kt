@@ -25,7 +25,7 @@ class FavoritesVM: ViewModel(){
     private val database = Firebase.database("https://aklatopia-default-rtdb.asia-southeast1.firebasedatabase.app/")
 
     val favorites = mutableStateListOf<Favorite>()
-    val ref = database.getReference("reviews")
+    val ref = database.getReference("favorites")
 
     init {
         getFavoritesRT()
@@ -53,6 +53,20 @@ class FavoritesVM: ViewModel(){
             .push()
             .setValue(favorite.toJSON())
     }
+
+    fun removeFromFavoritesByBookId(bookId: Int) {
+        ref.get().addOnSuccessListener { snapshot ->
+            snapshot.children.forEach { child ->
+                val favorite = child.getValue(Favorite::class.java)
+                if (favorite?.bookId == bookId) {
+                    child.ref.removeValue()
+                }
+            }
+        }.addOnFailureListener { e ->
+            Log.e("Firebase", "Failed to remove favorite: ${e.message}")
+        }
+    }
+
 
     fun removeFromFavorites(id: String){
         ref.child(id).removeValue()

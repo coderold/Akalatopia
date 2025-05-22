@@ -134,7 +134,7 @@ fun Home(navHostController: NavHostController){
 //                    verticalArrangement = Arrangement.spacedBy(10.dp),
 //                    horizontalArrangement = Arrangement.SpaceEvenly
 //                ){
-
+//
 //                    items(SupabaseBooks){ book->
 //                        SupabaseImageCard(
 //                            pic = book.cover,

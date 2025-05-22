@@ -27,6 +27,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,12 +47,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
+import com.example.aklatopia.ImageUploadViewModel
+import com.example.aklatopia.OnlineImage
 import com.example.aklatopia.data.BookCategory
 import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.LabeledHeader
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
 import com.example.aklatopia.SupabaseClient
+import com.example.aklatopia.data.User
 import com.example.aklatopia.data.user
 import com.example.aklatopia.profile.components.EditProfileDialog
 import com.example.aklatopia.ui.theme.Beige
@@ -71,6 +75,8 @@ fun ProfileScreen(navHostController: NavHostController){
         progress += bookCategory.progress
     }
 
+    var userState = remember { mutableStateOf(user) }
+
     LabeledHeader(label = "Profile") {padding ->
     Column (
         modifier = Modifier
@@ -79,17 +85,17 @@ fun ProfileScreen(navHostController: NavHostController){
                 state = scrollState
             )
         ){
-            ProfileInfo()
+            ProfileInfo(userState)
             Line()
             OverallProgressBar((progress/6), navHostController)
             Line()
-            ProfileButtonGroup(navHostController)
+            ProfileButtonGroup(navHostController, userState = userState)
         }
     }
 }
 
 @Composable
-fun ProfileInfo(){
+fun ProfileInfo(userState: MutableState<User>){
     Box(
         modifier = Modifier
             .background(Beige)
@@ -103,8 +109,8 @@ fun ProfileInfo(){
                 .size(100.dp)
                 .align(Alignment.TopCenter)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.user_profile_pic),
+            OnlineImage(
+                imageUrl = userState.value.avatar,
                 contentDescription = "profile pic",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -117,13 +123,13 @@ fun ProfileInfo(){
                 .padding(top = 125.dp, start = 20.dp)
         ) {
             Text(
-                text = user.name,
+                text = userState.value.name,
                 fontFamily = FontFamily(Font(R.font.poppins_extrabold)),
                 fontSize = 24.sp,
                 color = DarkBlue
             )
             Text(
-                text = user.userName,
+                text = userState.value.userName,
                 fontFamily = FontFamily(Font(R.font.poppins_semibold)),
                 fontSize = 15.sp,
                 color = DarkBlue
@@ -141,7 +147,7 @@ fun ProfileInfo(){
 
         ){
             Text(
-                text = user.bio,
+                text = userState.value.bio,
                 fontFamily = FontFamily(Font(R.font.poppins_medium)),
                 fontSize = 15.sp,
                 textAlign = TextAlign.Center,
@@ -224,7 +230,7 @@ fun OverallProgressBar(progress: Int, navHostController: NavHostController){
 }
 
 @Composable
-fun ProfileButtonGroup(navHostController: NavHostController){
+fun ProfileButtonGroup(navHostController: NavHostController, userState: MutableState<User>){
     var showDialog by remember{
         mutableStateOf(false)
     }
@@ -241,8 +247,10 @@ fun ProfileButtonGroup(navHostController: NavHostController){
     if(showEditProfileDialog){
         Dialog(onDismissRequest = {showEditProfileDialog = false}){
             EditProfileDialog(
-                onDismiss = {showEditProfileDialog = false},
-                onConfirm = {showEditProfileDialog = false}
+                onDismiss = { showEditProfileDialog = false },
+                onConfirm = {showEditProfileDialog = false},
+                userState = userState,
+                ImageUploadViewModel()
             )
         }
     }
