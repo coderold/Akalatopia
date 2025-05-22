@@ -1,5 +1,6 @@
 package com.example.aklatopia
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -10,16 +11,21 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.navigation.NavHostController
+import com.example.aklatopia.data.user
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.gotrue.Auth
+import io.github.jan.supabase.gotrue.auth
+import io.github.jan.supabase.gotrue.providers.Google
 import io.github.jan.supabase.gotrue.providers.builtin.IDToken
+import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.UUID
+
 
 @Composable
 fun GoogleSignInButton(navHostController: NavHostController) {
@@ -63,11 +69,12 @@ fun GoogleSignInButton(navHostController: NavHostController) {
                 Toast.makeText(context, "Log In na!", Toast.LENGTH_SHORT).show()
 
                 navHostController.navigate("main")
-//                supabase.auth.signInWith(IDToken) {
-//                    idToken = googleIdToken
-//                    provider = Google
-//                    nonce = rawNonce
-//                }
+
+                SupabaseClient.client.auth.signInWith(IDToken) {
+                    idToken = googleIdToken
+                    provider = Google
+                    nonce = rawNonce
+                }
 
                 // Handle successful sign-in
             } catch (e: GetCredentialException) {

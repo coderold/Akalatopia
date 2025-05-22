@@ -9,15 +9,14 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 
-data class Review(
+data class List(
     val id: String? = null,
     val user: User = User(),
-    val date: String = "",
-    val bookId: Int = 0,
-    val review: String = ""
+    val name: String = "",
 ){
     fun toJSON(): Map<String, Any?> =
         mapOf(
+            "name" to name,
             "user" to mapOf(
                 "userId" to user.userId,
                 "name" to user.name,
@@ -25,41 +24,27 @@ data class Review(
                 "bio" to user.bio,
                 "avatar" to user.avatar
             ),
-            "date" to date,
-            "bookId" to bookId,
-            "review" to review
         )
 }
 
-class FirebaseReviewVM: ViewModel(){
+class ListVM: ViewModel(){
     private val database = Firebase.database("https://aklatopia-default-rtdb.asia-southeast1.firebasedatabase.app/")
 
-    val reviews = mutableStateListOf<Review>()
-    val ref = database.getReference("reviews")
+    val list = mutableStateListOf<List>()
+    val ref = database.getReference("list")
 
     init {
-        getReviewsRT()
+        getListRT()
     }
 
-//    fun getReviews(){
-//        ref
-//            .get()
-//            .addOnCompleteListener {task ->
-//                task.result.getValue<Lists<Review>>()?.let {
-//                    reviews.clear()
-//                    reviews.addAll(it)
-//                }
-//            }
-//    }
-
-    private fun getReviewsRT() {
+    private fun getListRT() {
         ref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot
             ) {
-                reviews.clear()
+                list.clear()
                 snapshot.children.forEach { child ->
-                    child.getValue(Review::class.java)?.let { review ->
-                        reviews.add(review.copy(id = child.key))
+                    child.getValue(List::class.java)?.let { item ->
+                        list.add(item.copy(id = child.key))
                     }
                 }
             }
@@ -69,13 +54,24 @@ class FirebaseReviewVM: ViewModel(){
         })
     }
 
-    fun uploadReview(review: Review){
+    fun createList(list: List){
         ref
             .push()
-            .setValue(review.toJSON())
+            .setValue(list.toJSON())
     }
 
-    fun deleteReview(reviewId: String){
-        ref.child(reviewId).removeValue()
+    fun updateList(id: String?, newName: String){
+        val updatedList = List(
+            id = id,
+            user = user,
+            name = newName
+        )
+        ref.child(id.toString())
+            .updateChildren(updatedList.toJSON())
     }
+
+    fun deleteList(id: String){
+        ref.child(id).removeValue()
+    }
+
 }

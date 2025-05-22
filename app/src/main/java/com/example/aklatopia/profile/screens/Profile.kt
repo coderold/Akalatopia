@@ -1,6 +1,7 @@
 package com.example.aklatopia.profile.screens
 
 import android.app.Activity
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,11 +24,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,12 +51,16 @@ import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.LabeledHeader
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
+import com.example.aklatopia.SupabaseClient
+import com.example.aklatopia.data.user
 import com.example.aklatopia.profile.components.EditProfileDialog
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
 import com.example.aklatopia.ui.theme.Green
 import com.example.aklatopia.ui.theme.Red
 import com.example.aklatopia.ui.theme.Yellow
+import io.github.jan.supabase.gotrue.auth
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(navHostController: NavHostController){
@@ -110,13 +117,13 @@ fun ProfileInfo(){
                 .padding(top = 125.dp, start = 20.dp)
         ) {
             Text(
-                text = "Matthew Molina",
+                text = user.name,
                 fontFamily = FontFamily(Font(R.font.poppins_extrabold)),
                 fontSize = 24.sp,
                 color = DarkBlue
             )
             Text(
-                text = "@pusangpagod",
+                text = user.userName,
                 fontFamily = FontFamily(Font(R.font.poppins_semibold)),
                 fontSize = 15.sp,
                 color = DarkBlue
@@ -134,7 +141,7 @@ fun ProfileInfo(){
 
         ){
             Text(
-                text = "“hindi mahalagang magwagi, aaaaaaaaaaaaaaa” - Lebron James",
+                text = user.bio,
                 fontFamily = FontFamily(Font(R.font.poppins_medium)),
                 fontSize = 15.sp,
                 textAlign = TextAlign.Center,
@@ -144,6 +151,8 @@ fun ProfileInfo(){
             )
         }
     }
+
+
 }
 
 @Composable
@@ -225,7 +234,6 @@ fun ProfileButtonGroup(navHostController: NavHostController){
 
     if(showDialog){
         SignOutAlert(
-            navHostController,
             onDismiss = {showDialog = false}
         )
     }
@@ -283,11 +291,11 @@ fun ProfileButtonGroup(navHostController: NavHostController){
 
 @Composable
 fun SignOutAlert(
-    navHostController: NavHostController,
     onDismiss: () -> Unit
 ){
     val context = LocalContext.current
     val activity = context as? Activity
+    val coroutineScope = rememberCoroutineScope()
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -334,10 +342,16 @@ fun SignOutAlert(
                     )
                 }
                 Button(
-                    onClick = { activity?.let {
+                    onClick = {
+                        coroutineScope.launch {
+                            SupabaseClient.logout()
+                            Toast.makeText(context,"Signed Out", Toast.LENGTH_SHORT).show()
+                        }
+
+                        activity?.let {
                         it.finish()
-                        it.startActivity(it.intent)
-                    } },
+                        it.startActivity(it.intent) }
+                              },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Red,
                         contentColor = Beige

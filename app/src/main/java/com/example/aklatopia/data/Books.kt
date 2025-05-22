@@ -2,6 +2,7 @@ package com.example.aklatopia.data
 
 import com.example.aklatopia.R
 import kotlinx.serialization.Serializable
+import kotlin.collections.List
 
 @Serializable
 data class BookCategory(val displayName: String, val progress: Int) {
@@ -29,7 +30,7 @@ data class BookCategory(val displayName: String, val progress: Int) {
 }
 
 data class Book(
-    val id: String,
+    val id: Int,
     val title: String,
     val cover: Int,
     val desc: String,
@@ -44,7 +45,7 @@ data class Book(
 
 val books = listOf(
     Book(
-        id = "0",
+        id = 11,
         title = "Ang Pambihirang Buhok ni Lola",
         cover = R.drawable.ang_pambihirang_buhok_ni_lola_cover,
         desc = "buhok",
@@ -59,7 +60,7 @@ val books = listOf(
         totalRatings = 7,
     ),
     Book(
-        id = "1",
+        id = 12,
         title = "Alamat ng Gubat",
         cover = R.drawable.alamat_ng_gubat_cover,
         desc = "gubat",
@@ -74,7 +75,7 @@ val books = listOf(
         totalRatings = 35,
     ),
     Book(
-        id = "2",
+        id = 13,
         title = "Bilang! Isang Aklat ng Pagbilang",
         cover = R.drawable.bilang_isang_aklat_ng_pagbilang_cover,
         desc = "gubat",
@@ -87,7 +88,7 @@ val books = listOf(
         totalRatings = 2,
     ),
     Book(
-        id = "3",
+        id = 14,
         title = "Si Langgam at si Tipaklong",
         cover = R.drawable.si_langgam_at_si_tipaklong_cover,
         desc = "gubat",
@@ -102,7 +103,7 @@ val books = listOf(
         totalRatings = 7,
     ),
     Book(
-        id = "4",
+        id = 15,
         title = "Ang alamat ng ampalaya",
         cover = R.drawable.alamat_ng_ampalaya_cover,
         desc = "gubat",
@@ -118,7 +119,7 @@ val books = listOf(
         totalRatings = 3,
     ),
     Book(
-        id = "5",
+        id = 16,
         title = "Si Janus Sílang at ang Tiyanak ng Tábon",
         cover = R.drawable.si_janus_silang_cover,
         desc = "gubat",
@@ -133,7 +134,7 @@ val books = listOf(
         totalRatings = 2,
     ),
     Book(
-        id = "6",
+        id = 17,
         title = "Ay! May Bukbok ang Ngipin ni Ani!",
         cover = R.drawable.ay_may_bukbok_ang_ngipin_ni_ani_cover,
         desc = "gubat",
@@ -147,7 +148,7 @@ val books = listOf(
         totalRatings = 2,
     ),
     Book(
-        id = "7",
+        id = 18,
         title = "Araw sa Palengke",
         cover = R.drawable.araw_sa_palengke_cover,
         desc = "gubat",
@@ -163,33 +164,33 @@ val books = listOf(
 
 )
 
-data class BookList(
-    val listName:String,
-    val books: List<Book>
-)
+//data class BookList(
+//    val listName:String,
+//    val books: List<Book>
+//)
 
-val list1 = listOf(
-    books[1],
-    books[2],
-    books[3],
-)
-
-val list2 = listOf(
-    books[0],
-    books[4],
-    books[5],
-)
-
-val bookList = listOf(
-    BookList(
-        listName = "My List 1",
-        books = list1
-    ),
-    BookList(
-        listName = "Books to Buy",
-        books = list2
-    )
-)
+//val list1 = listOf(
+//    books[1],
+//    books[2],
+//    books[3],
+//)
+//
+//val list2 = listOf(
+//    books[0],
+//    books[4],
+//    books[5],
+//)
+//
+//val bookList = listOf(
+//    BookList(
+//        listName = "My List 1",
+//        books = list1
+//    ),
+//    BookList(
+//        listName = "Books to Buy",
+//        books = list2
+//    )
+//)
 
 val favorites = listOf(
     books[1],

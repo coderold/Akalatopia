@@ -33,6 +33,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.example.aklatopia.WindowInfo
+import com.example.aklatopia.data.ListVM
+import com.example.aklatopia.data.List
+import com.example.aklatopia.data.user
 import com.example.aklatopia.rememberWindowInfo
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
@@ -134,11 +137,19 @@ fun ListHeader(
     }
     if (showAddList){
         Dialog(onDismissRequest = {showAddList = false}){
+            var listName by remember { mutableStateOf("") }
             AddListDialog(
                 onDismiss = {showAddList = false},
+                onListNameChange = { listName = it},
+                listName = listName,
                 onConfirm = {
+                    ListVM().createList(
+                        List(
+                            user = user,
+                            name = listName,
+                        )
+                    )
                     showAddList = false
-                    navHostController.navigate("listContent/My List 1")
                 }
             )
         }

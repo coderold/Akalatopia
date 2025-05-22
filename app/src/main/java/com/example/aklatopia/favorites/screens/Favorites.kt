@@ -63,10 +63,3 @@ fun FavoritesScreen(navHostController: NavHostController){
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun FavPrev(){
-    val nav = rememberNavController()
-    FavoritesScreen(nav)
-}

@@ -1,5 +1,7 @@
 package com.example.aklatopia.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -21,8 +23,11 @@ import com.example.aklatopia.profile.screens.ProgressScreen
 import com.example.aklatopia.home.screens.Search
 import com.example.aklatopia.auth.screens.SignUp
 import com.example.aklatopia.auth.screens.GetStarted
+import com.example.aklatopia.data.BooklistVM
+import com.example.aklatopia.data.FirebaseRatingsVM
 import com.example.aklatopia.data.FirebaseReviewVM
 import com.example.aklatopia.home.components.BookVM
+import com.example.aklatopia.home.screens.OnlineDetailScreen
 
 @Composable
 fun StartingNav() {
@@ -55,6 +60,7 @@ fun StartingNav() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainAppScreen() {
     val navController = rememberNavController()
@@ -81,19 +87,24 @@ fun MainAppScreen() {
             composable("search") { Search(navController) }
             composable("progress") { ProgressScreen(navController) }
 
-            composable("addToList/{listName}") { backStackEntry ->
-                val listName = backStackEntry.arguments?.getString("listName")
-                AddToList(navController, listName?: "No info")
+            composable("addToList/{listId}") { backStackEntry ->
+                val listId = backStackEntry.arguments?.getString("listId")
+                AddToList(navController, listId?: "No info", BooklistVM())
             }
 
             composable("detail/{title}") { backStackEntry ->
                 val title = backStackEntry.arguments?.getString("title")
-                DetailScreen(navController, title?: "No info", viewModel = FirebaseReviewVM())
+                DetailScreen(navController, title?: "No info", FirebaseReviewVM(), FirebaseRatingsVM())
             }
 
-            composable("listContent/{listName}") { backStackEntry ->
-                val listName = backStackEntry.arguments?.getString("listName")
-                ListContentScreen(navController, listName?: "No info")
+            composable("onlineDetail/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
+                OnlineDetailScreen(navController, id, FirebaseReviewVM(), FirebaseRatingsVM())
+            }
+
+            composable("listContent/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")
+                ListContentScreen(navController, id?: "No info", BooklistVM())
             }
         }
     }

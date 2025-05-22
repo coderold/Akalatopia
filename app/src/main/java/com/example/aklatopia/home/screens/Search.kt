@@ -76,7 +76,7 @@ import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
 import com.example.aklatopia.WindowInfo
 import com.example.aklatopia.data.books
-import com.example.aklatopia.list.components.ListBookCard
+import com.example.aklatopia.home.components.SearchBookCard
 import com.example.aklatopia.rememberWindowInfo
 import kotlinx.coroutines.launch
 
@@ -298,9 +298,8 @@ fun SearchBookCard(
             .padding(paddingValues)
     ){
         items(items = filteredBooks){ book->
-            ListBookCard(
+            SearchBookCard(
                 book.title,
-                label = "Add to List",
                 navHostController,
                 onClick = {}
             )

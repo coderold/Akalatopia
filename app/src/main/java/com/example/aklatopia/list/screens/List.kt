@@ -1,5 +1,6 @@
 package com.example.aklatopia.list.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,14 +25,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
-import com.example.aklatopia.data.bookList
+import com.example.aklatopia.data.ListVM
+import com.example.aklatopia.data.user
+import com.example.aklatopia.list.components.AddListDialog
+import com.example.aklatopia.list.components.ConfirmListDeleteDialog
+import com.example.aklatopia.list.components.EditListDialog
 import com.example.aklatopia.list.components.ListHeader
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
@@ -50,50 +58,41 @@ fun ListScreen(navHostController: NavHostController){
 
 @Composable
 fun Lists(navHostController: NavHostController,paddingValues: PaddingValues){
+    val ListVM = ListVM()
+
     LazyColumn(
         modifier = Modifier
             .background(Beige)
             .fillMaxSize()
             .padding(paddingValues)
     ){
-        items(bookList){ bookList->
-            ListCard(
-                bookList.listName,
-                navHostController,
-                onEdit = {},
-                onDelete = {}
-            )
-        }
 
-    }
-}
+        val myLists = ListVM.list.filter { it.user.userId == user.userId }
 
-@Composable
-fun ListCard(listName: String, navHostController: NavHostController){
-    val bookList = bookList[bookList.indexOfFirst { it.listName == listName}]
-    Card (
-        modifier = Modifier
-            .padding(10.dp)
-            .fillMaxWidth()
-            .height(80.dp)
-            .clickable { navHostController.navigate("listContent/$listName") },
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Yellow)
-        ){
-            Row{
-                Text(
-                    text = bookList.listName,
-                    color = DarkBlue,
-                    fontFamily = FontFamily(Font(R.font.poppins_extrabold)),
-                    fontSize = 20.sp,
+        if (myLists.isEmpty()){
+            item {
+                Box(
                     modifier = Modifier
-                        .padding(24.dp)
-                        .requiredWidth(260.dp)
-                )
+                        .fillMaxWidth(),
+                ){
+                    Text(
+                        text = "Create your first List!",
+                        fontSize = 18.sp,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(top = 30.dp)
+                    )
+                }
+
             }
+        }
+        items(myLists){ item->
+            ListCard(
+                item.id.toString(),
+                item.name,
+                navHostController
+            )
+
         }
 
     }
@@ -101,20 +100,22 @@ fun ListCard(listName: String, navHostController: NavHostController){
 
 @Composable
 fun ListCard(
+    id: String,
     listName: String,
     navHostController: NavHostController,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
 ) {
-    val bookList = bookList[bookList.indexOfFirst { it.listName == listName }]
+
     var expanded by remember { mutableStateOf(false) }
+    var showEditList by remember{ mutableStateOf(false) }
+    var showDeleteList by remember{ mutableStateOf(false) }
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier
             .padding(10.dp)
             .fillMaxWidth()
             .height(80.dp)
-            .clickable { navHostController.navigate("listContent/$listName") },
+            .clickable { navHostController.navigate("listContent/$id") },
     ) {
         Box(
             modifier = Modifier
@@ -129,7 +130,7 @@ fun ListCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = bookList.listName,
+                    text = listName,
                     color = DarkBlue,
                     fontFamily = FontFamily(Font(R.font.poppins_extrabold)),
                     fontSize = 20.sp
@@ -160,7 +161,7 @@ fun ListCard(
                             ) },
                             onClick = {
                                 expanded = false
-                                onEdit()
+                                showEditList = true
                             }
                         )
                         Line()
@@ -172,12 +173,52 @@ fun ListCard(
                             ) },
                             onClick = {
                                 expanded = false
-                                onDelete()
+                                showDeleteList = true
                             }
                         )
                     }
                 }
             }
+        }
+    }
+
+    if (showEditList){
+        Dialog(onDismissRequest = {showEditList = false}){
+            var listName by remember { mutableStateOf(listName) }
+            EditListDialog(
+                onDismiss = {showEditList = false},
+                onListNameChange = { listName = it},
+                listName = listName,
+                onConfirm = {
+
+                    if (listName.isNotEmpty()){
+                        ListVM().updateList(
+                            id = id,
+                            newName = listName,
+                        )
+                        showEditList = false
+                        Toast.makeText(context,"List name changed to $listName", Toast.LENGTH_SHORT).show()
+                    }else{
+                        Toast.makeText(context,"Empty Field", Toast.LENGTH_SHORT).show()
+                    }
+
+                }
+            )
+        }
+    }
+
+    if (showDeleteList){
+        Dialog(onDismissRequest = {showDeleteList = false}){
+            ConfirmListDeleteDialog(
+                onDismiss = {showDeleteList = false},
+                onConfirm = {
+                    ListVM().deleteList(
+                        id = id
+                    )
+                    showDeleteList = false
+                },
+                listName = listName
+            )
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.aklatopia.home.screens
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -27,6 +28,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -53,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
+import com.example.aklatopia.OnlineImage
 import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
@@ -87,9 +90,9 @@ import java.time.format.DateTimeFormatter
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DetailScreen(
+fun OnlineDetailScreen(
     navHostController: NavHostController,
-    title: String,
+    id: Int,
     ReviewVM: FirebaseReviewVM,
     RatingVM: FirebaseRatingsVM
 ) {
@@ -100,7 +103,6 @@ fun DetailScreen(
 
     val currentDate = LocalDate.now()
     val formattedDate = currentDate.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"))
-
 
     LaunchedEffect(Unit){
         withContext(Dispatchers.IO){
@@ -136,8 +138,18 @@ fun DetailScreen(
                         .padding(headerPadding),
                     horizontalAlignment = Alignment.Start,
                 ) {
-                    //eto pala
-                    val book = books[books.indexOfFirst { it.title == title }]
+
+                    //filtered
+                    val book = SupabaseBooks.find { it.id == id }
+
+                    if (book == null) {
+                        item {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator(color = DarkBlue)
+                            }
+                        }
+                        return@LazyColumn
+                    }
 
                     item {
 
@@ -153,8 +165,8 @@ fun DetailScreen(
                                 shape = RoundedCornerShape(20.dp),
                                 elevation = CardDefaults.cardElevation(5.dp)
                             ) {
-                                Image(
-                                    painter = painterResource(id = book.cover),
+                                OnlineImage(
+                                    imageUrl = book.cover,
                                     contentDescription = book.desc,
                                     contentScale = ContentScale.Fit,
                                     modifier = Modifier
@@ -165,7 +177,7 @@ fun DetailScreen(
                             }
                         }
                         Text(
-                            text = title,
+                            text = book.title,
                             fontFamily = FontFamily(Font(R.font.poppins_extrabold)),
                             color = DarkBlue,
                             fontSize = 36.sp,
@@ -261,7 +273,7 @@ fun DetailScreen(
                                             Rating(
                                                 rating = selectedStars,
                                                 bookId = book.id,
-                                                userId = user.userId
+                                                userId = "asdasdasd"
                                             )
                                         )
                                         showRateDialog = false
@@ -288,13 +300,13 @@ fun DetailScreen(
                                 ReviewDialog(
                                     onDismiss = { showReviewDialog = false },
                                     onPost = { reviewText ->
-                                        ReviewVM.uploadReview(
-                                            Review(
-                                                user = user,
-                                                date = formattedDate,
-                                                bookId = book.id,
-                                                review = reviewText
-                                            )
+                                         ReviewVM.uploadReview(
+                                             Review(
+                                                 user = user,
+                                                 date = formattedDate,
+                                                 bookId = book.id,
+                                                 review = reviewText
+                                             )
                                         )
                                         showReviewDialog = false
                                         coroutineScope.launch {

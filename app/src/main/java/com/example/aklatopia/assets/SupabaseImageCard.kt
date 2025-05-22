@@ -35,15 +35,15 @@ fun SupabaseImageCard(
     pic: String,
     desc: String,
     title: String,
-    //navHostController: NavHostController
+    id: Int,
+    navHostController: NavHostController
 ){
     val windowInfo = rememberWindowInfo()
     Card(
         modifier = Modifier
             .width(windowInfo.screenWidth/2 - 15.dp)
-            .padding(10.dp),
-            //.clickable { navHostController.navigate("detail/$title") },
-
+            .padding(10.dp)
+            .clickable { navHostController.navigate("onlineDetail/$id") },
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(5.dp)
     ){

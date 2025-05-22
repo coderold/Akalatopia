@@ -9,57 +9,36 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 
-data class Review(
+data class Favorite (
     val id: String? = null,
-    val user: User = User(),
-    val date: String = "",
     val bookId: Int = 0,
-    val review: String = ""
+    val userId: String = ""
 ){
     fun toJSON(): Map<String, Any?> =
         mapOf(
-            "user" to mapOf(
-                "userId" to user.userId,
-                "name" to user.name,
-                "userName" to user.userName,
-                "bio" to user.bio,
-                "avatar" to user.avatar
-            ),
-            "date" to date,
             "bookId" to bookId,
-            "review" to review
+            "userId" to userId
         )
 }
 
-class FirebaseReviewVM: ViewModel(){
+class FavoritesVM: ViewModel(){
     private val database = Firebase.database("https://aklatopia-default-rtdb.asia-southeast1.firebasedatabase.app/")
 
-    val reviews = mutableStateListOf<Review>()
+    val favorites = mutableStateListOf<Favorite>()
     val ref = database.getReference("reviews")
 
     init {
-        getReviewsRT()
+        getFavoritesRT()
     }
 
-//    fun getReviews(){
-//        ref
-//            .get()
-//            .addOnCompleteListener {task ->
-//                task.result.getValue<Lists<Review>>()?.let {
-//                    reviews.clear()
-//                    reviews.addAll(it)
-//                }
-//            }
-//    }
-
-    private fun getReviewsRT() {
+    private fun getFavoritesRT() {
         ref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot
             ) {
-                reviews.clear()
+                favorites.clear()
                 snapshot.children.forEach { child ->
-                    child.getValue(Review::class.java)?.let { review ->
-                        reviews.add(review.copy(id = child.key))
+                    child.getValue(Favorite::class.java)?.let { item ->
+                        favorites.add(item.copy(id = child.key))
                     }
                 }
             }
@@ -69,13 +48,13 @@ class FirebaseReviewVM: ViewModel(){
         })
     }
 
-    fun uploadReview(review: Review){
+    fun addToFavorites(favorite: Favorite){
         ref
             .push()
-            .setValue(review.toJSON())
+            .setValue(favorite.toJSON())
     }
 
-    fun deleteReview(reviewId: String){
-        ref.child(reviewId).removeValue()
+    fun removeFromFavorites(id: String){
+        ref.child(id).removeValue()
     }
 }

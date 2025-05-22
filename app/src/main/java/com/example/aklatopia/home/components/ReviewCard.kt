@@ -1,5 +1,7 @@
 package com.example.aklatopia.home.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -61,7 +63,7 @@ fun ReviewCard(review: Review, viewModel: FirebaseReviewVM){
                     .padding(10.dp)
             ){
                 OnlineImage(
-                    imageUrl = review.profilePic,
+                    imageUrl = review.user.avatar,
                     contentDescription = "ProfilePic",
                     modifier = Modifier
                         .size(50.dp)
@@ -71,11 +73,12 @@ fun ReviewCard(review: Review, viewModel: FirebaseReviewVM){
                     modifier = Modifier.padding(start = 10.dp)
                 ) {
                     Text(
-                        text = review.name,
+                        text = review.user.name,
                         fontFamily = FontFamily(Font(R.font.poppins_medium)),
                         fontSize = 16.sp,
                         color = DarkBlue
                     )
+
                     Text(
                         text = review.date,
                         fontFamily = FontFamily(Font(R.font.poppins_regular)),
