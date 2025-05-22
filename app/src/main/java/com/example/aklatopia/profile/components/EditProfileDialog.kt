@@ -1,7 +1,12 @@
 package com.example.aklatopia.profile.components
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -38,8 +43,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,20 +59,17 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import com.example.aklatopia.ImageUploadViewModel
+import coil.compose.rememberAsyncImagePainter
 import com.example.aklatopia.R
 import com.example.aklatopia.WindowInfo
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.data.User
-import com.example.aklatopia.data.user
 import com.example.aklatopia.rememberWindowInfo
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
 import com.example.aklatopia.ui.theme.Green
 import com.example.aklatopia.ui.theme.OffWhite
 import com.example.aklatopia.ui.theme.Red
-import java.io.ByteArrayOutputStream
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -75,7 +77,7 @@ fun EditProfileDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     userState: MutableState<User>,
-    viewModel: ImageUploadViewModel
+    profileUri: MutableState<Uri?>
 ) {
     val windowInfo = rememberWindowInfo()
     val isScreenRotated = windowInfo.screenWidthInfo is WindowInfo.WindowType.Medium
@@ -85,13 +87,13 @@ fun EditProfileDialog(
     var bio by remember { mutableStateOf(userState.value.bio) }
 
     val imageUri = remember { mutableStateOf<Uri?>(null) }
+
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         imageUri.value = uri
     }
 
-    val uploadState by viewModel.uploadState.collectAsState()
     Surface(
         shape = RoundedCornerShape(24.dp),
         color = Beige,
@@ -129,21 +131,29 @@ fun EditProfileDialog(
                     shape = RoundedCornerShape(75.dp),
                     modifier = Modifier
                         .size(if (isScreenRotated) 80.dp else 120.dp)
+                        .clickable {
+                            launcher.launch("image/*")
+                        }
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .clickable {
-                                launcher.launch("image/*")
-                            }
                     ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.user_profile_pic),
-                            contentDescription = "profile pic",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                        )
+                        if (imageUri.value != null) {
+                            Image(
+                                painter = rememberAsyncImagePainter(imageUri.value),
+                                contentDescription = "profile pic",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            Image(
+                                painter = painterResource(id = R.drawable.user_profile_pic),
+                                contentDescription = "profile pic",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -158,20 +168,8 @@ fun EditProfileDialog(
                                 .align(Alignment.Center)
                         )
                     }
-                    when (val state = uploadState) {
-                        is ImageUploadViewModel.UploadState.Idle -> {}
-                        is ImageUploadViewModel.UploadState.Loading -> CircularProgressIndicator()
-                        is ImageUploadViewModel.UploadState.Success -> {
-                            Text("Upload successful!")
-                            AsyncImage(
-                                model = state.url,
-                                contentDescription = "Uploaded image"
-                            )
-                        }
-                        is ImageUploadViewModel.UploadState.Error -> {
-                            Text("Error: ${state.message}", color = Color.Red)
-                        }
-                    }
+
+
                 }
             }
 
@@ -302,6 +300,8 @@ fun EditProfileDialog(
                                 bio = bio
                             )
 
+                            profileUri.value = imageUri.value
+
                             onConfirm()
                         } ,
                         colors = ButtonDefaults.buttonColors(containerColor = Green),
@@ -320,18 +320,7 @@ fun EditProfileDialog(
     }
 }
 
-fun Context.uriToByteArray(uri: Uri): ByteArray? {
-    return contentResolver.openInputStream(uri)?.use { inputStream ->
-        ByteArrayOutputStream().use { outputStream ->
-            val buffer = ByteArray(1024)
-            var length: Int
-            while (inputStream.read(buffer).also { length = it } != -1) {
-                outputStream.write(buffer, 0, length)
-            }
-            outputStream.toByteArray()
-        }
-    }
-}
+
 
 @Composable
 fun CustomSpacer(isScreenRotated: Boolean){

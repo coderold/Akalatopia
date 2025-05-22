@@ -1,6 +1,7 @@
 package com.example.aklatopia.profile.screens
 
 import android.app.Activity
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -47,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
-import com.example.aklatopia.ImageUploadViewModel
+import coil.compose.rememberAsyncImagePainter
 import com.example.aklatopia.OnlineImage
 import com.example.aklatopia.data.BookCategory
 import com.example.aklatopia.assets.ExtraBoldText
@@ -75,7 +76,8 @@ fun ProfileScreen(navHostController: NavHostController){
         progress += bookCategory.progress
     }
 
-    var userState = remember { mutableStateOf(user) }
+    val userState = remember { mutableStateOf(user) }
+    val imageUri = remember { mutableStateOf<Uri?>(null) }
 
     LabeledHeader(label = "Profile") {padding ->
     Column (
@@ -85,17 +87,17 @@ fun ProfileScreen(navHostController: NavHostController){
                 state = scrollState
             )
         ){
-            ProfileInfo(userState)
+            ProfileInfo(userState, imageUri)
             Line()
             OverallProgressBar((progress/6), navHostController)
             Line()
-            ProfileButtonGroup(navHostController, userState = userState)
+            ProfileButtonGroup(navHostController, userState = userState, imageUri = imageUri)
         }
     }
 }
 
 @Composable
-fun ProfileInfo(userState: MutableState<User>){
+fun ProfileInfo(userState: MutableState<User>, imageUri: MutableState<Uri?>){
     Box(
         modifier = Modifier
             .background(Beige)
@@ -109,13 +111,24 @@ fun ProfileInfo(userState: MutableState<User>){
                 .size(100.dp)
                 .align(Alignment.TopCenter)
         ) {
-            OnlineImage(
-                imageUrl = userState.value.avatar,
-                contentDescription = "profile pic",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-            )
+
+            if (imageUri.value != null) {
+                Image(
+                    painter = rememberAsyncImagePainter(imageUri.value),
+                    contentDescription = "profile pic",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                OnlineImage(
+                    imageUrl = userState.value.avatar,
+                    contentDescription = "profile pic",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                )
+            }
+
         }
         Column(
             modifier = Modifier
@@ -230,7 +243,11 @@ fun OverallProgressBar(progress: Int, navHostController: NavHostController){
 }
 
 @Composable
-fun ProfileButtonGroup(navHostController: NavHostController, userState: MutableState<User>){
+fun ProfileButtonGroup(
+    navHostController: NavHostController,
+    userState: MutableState<User>,
+    imageUri: MutableState<Uri?>
+){
     var showDialog by remember{
         mutableStateOf(false)
     }
@@ -250,7 +267,7 @@ fun ProfileButtonGroup(navHostController: NavHostController, userState: MutableS
                 onDismiss = { showEditProfileDialog = false },
                 onConfirm = {showEditProfileDialog = false},
                 userState = userState,
-                ImageUploadViewModel()
+                imageUri
             )
         }
     }
