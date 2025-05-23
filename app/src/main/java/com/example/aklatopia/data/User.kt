@@ -12,7 +12,9 @@ data class User(
     val name: String = "",
     val userName: String = "",
     val bio: String = "",
-    val avatar: String = ""
+    val avatar: String = "",
+    val pass: String = "",
+    val email: String = "",
 )
 
 val supabaseUser = SupabaseClient.client.auth.currentUserOrNull()
@@ -32,7 +34,10 @@ val user = User(
     name = "Matthew Molina",
     userName = "@posahh",
     bio = "“hindi mahalagang magwagi, aaaaaaaaaaaaaaa” - Lebron James",
-    avatar = "https://res.cloudinary.com/dzdivpj68/image/upload/user_profile_pic_sdeooq.png"
+    avatar = "https://res.cloudinary.com/dzdivpj68/image/upload/user_profile_pic_sdeooq.png",
+
+    pass = "123",
+    email = "user"
 )
 
 //var user by remember {

@@ -38,8 +38,9 @@ fun BottomNavBar(navController: NavHostController) {
     val selectedItem = when {
         currentRoute.startsWith("home") -> "home"
         currentRoute.startsWith("list") -> "list"
+        currentRoute.startsWith("addToList") -> "list"
         currentRoute.startsWith("favorites") -> "favorites"
-        currentRoute.startsWith("profile") -> "profile"
+        currentRoute.contains("profile") || currentRoute.contains("progress") -> "profile"
         else -> "home"
     }
     val windowInfo = rememberWindowInfo()
@@ -62,6 +63,7 @@ fun BottomNavBar(navController: NavHostController) {
                 onClick = {
                     navController.navigate(item) {
                         popUpTo(navController.graph.findStartDestination().id) {
+                            inclusive = true // This clears the stack
                             saveState = true
                         }
                         launchSingleTop = true

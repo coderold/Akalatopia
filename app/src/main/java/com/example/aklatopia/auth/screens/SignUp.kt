@@ -1,8 +1,13 @@
 package com.example.aklatopia.auth.screens
 
+import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
@@ -10,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +36,7 @@ fun SignUp(navHostController: NavHostController){
             .fillMaxSize()
     ) {
         val isScreenRotated = maxWidth > 450.dp
+        val context = LocalContext.current
         Box(modifier = Modifier
             .background(Beige)
             .fillMaxSize()
@@ -155,16 +162,45 @@ fun SignUp(navHostController: NavHostController){
                         }
                     }
 
-                    RoutedButton(
-                        label = "Create Account",
-                        navHostController = navHostController,
-                        route = "main",
-                        color = Red,
+                    Button(
+                        onClick = {
+                            when {
+                                name.isBlank() || user.isBlank() || email.isBlank() || pass.isBlank() || confirm.isBlank() -> {
+                                    Toast.makeText(context, "Please fill out all fields", Toast.LENGTH_SHORT).show()
+                                }
+                                !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                                    Toast.makeText(context, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
+                                }
+                                user.length < 6 -> {
+                                    Toast.makeText(context, "Username must be at least 6 characters", Toast.LENGTH_SHORT).show()
+                                }
+                                pass.length < 6 -> {
+                                    Toast.makeText(context, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
+                                }
+                                pass != confirm -> {
+                                    Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                                }
+                                else -> {
+                                    Toast.makeText(context, "Account Created!", Toast.LENGTH_SHORT).show()
+                                    navHostController.navigate("main")
+                                }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Red,
+                            contentColor = MaterialTheme.colorScheme.onTertiary
+                        ),
                         modifier = Modifier
                             .padding(0.dp, 20.dp)
                             .height(60.dp)
                             .fillMaxWidth()
-                    )
+                    ) {
+                        Text(
+                            text = "Create Account",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontSize = 20.sp
+                        )
+                    }
                 }
             }
         }

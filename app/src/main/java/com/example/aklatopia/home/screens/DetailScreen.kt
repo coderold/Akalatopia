@@ -311,7 +311,7 @@ fun DetailScreen(
                     val filteredRatings = RatingVM.ratings.filter { it.bookId == book.id }
 
                     val averageRating = if (filteredRatings.isNotEmpty()) {
-                        filteredRatings.map { it.rating }.average()
+                        String.format("%.1f", filteredRatings.map { it.rating }.average()).toDouble()
                     } else {
                         0.0
                     }

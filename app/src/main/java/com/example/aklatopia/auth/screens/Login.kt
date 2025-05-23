@@ -1,5 +1,7 @@
 package com.example.aklatopia.auth.screens
 
+import android.util.Patterns
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -33,6 +35,7 @@ import com.example.aklatopia.R
 import com.example.aklatopia.auth.components.PasswordTextField
 import com.example.aklatopia.auth.components.RoutedButton
 import com.example.aklatopia.auth.components.StyledTextField
+import com.example.aklatopia.data.user
 import com.example.aklatopia.ui.theme.*
 
 @Composable
@@ -41,6 +44,7 @@ fun Login(navHostController: NavHostController){
         modifier = Modifier
             .fillMaxSize()
     ){
+        val context = LocalContext.current
         val isScreenRotated = maxWidth > 450.dp
         Box(
             modifier = Modifier
@@ -132,18 +136,36 @@ fun Login(navHostController: NavHostController){
                             .fillMaxWidth(if (isScreenRotated) 0.5f else 0.8f)
                     )
 
-                    RoutedButton(
-                        label = "Log In",
-                        navHostController = navHostController,
-                        route = "main",
-                        color = Red,
+                    Button(
+                        onClick = {
+                            when {
+                                email.isBlank() || pass.isBlank() -> {
+                                    Toast.makeText(context, "Please fill out all fields", Toast.LENGTH_SHORT).show()
+                                }
+                                email != user.email || pass != user.pass -> {
+                                    Toast.makeText(context, "Credentials not Found", Toast.LENGTH_SHORT).show()
+                                }
+                                else -> {
+                                    Toast.makeText(context, "Logged In", Toast.LENGTH_SHORT).show()
+                                    navHostController.navigate("main")
+                                }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Red,
+                            contentColor = MaterialTheme.colorScheme.onTertiary
+                        ),
                         modifier = Modifier
-                            .padding(
-                                horizontal = 0.dp,
-                                vertical = if (isScreenRotated) 5.dp else 20.dp)
-                            .fillMaxWidth(if (isScreenRotated) 0.5f else 0.8f)
+                            .padding(0.dp, 20.dp)
                             .height(60.dp)
-                    )
+                            .fillMaxWidth(if (isScreenRotated) 0.5f else 0.8f)
+                    ) {
+                        Text(
+                            text = "Log In",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontSize = 20.sp
+                        )
+                    }
 
 //                    Text(
 //                        text = "Or Sign in With Google",

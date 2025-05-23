@@ -2,16 +2,23 @@ package com.example.aklatopia
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.navigation.NavHostController
 import com.example.aklatopia.data.user
+import com.example.aklatopia.ui.theme.DarkBlue
+import com.example.aklatopia.ui.theme.Green
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -66,7 +73,7 @@ fun GoogleSignInButton(navHostController: NavHostController) {
 
                 val googleIdToken = googleIdTokenCredential.idToken
 
-                Toast.makeText(context, "Log In na!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Logging In", Toast.LENGTH_SHORT).show()
 
                 navHostController.navigate("main")
 
@@ -89,9 +96,14 @@ fun GoogleSignInButton(navHostController: NavHostController) {
         }
     }
 
-    Button(
-        onClick = onClick,
-    ) {
-        Text("Sign in with Google")
-    }
+    Text(
+        text = "Or Sign in With Google",
+        color = Green,
+        fontFamily = FontFamily(Font(R.font.poppins_medium)),
+        fontSize = 14.sp,
+        modifier = Modifier
+            .clickable {
+                onClick()
+            }
+    )
 }
