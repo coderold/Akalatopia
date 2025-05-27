@@ -1,8 +1,6 @@
 package com.example.aklatopia.profile.screens
 
-import android.app.Activity
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,27 +18,22 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -55,7 +48,6 @@ import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.LabeledHeader
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
-import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.data.User
 import com.example.aklatopia.data.user
 import com.example.aklatopia.profile.components.EditProfileDialog
@@ -64,8 +56,7 @@ import com.example.aklatopia.ui.theme.DarkBlue
 import com.example.aklatopia.ui.theme.Green
 import com.example.aklatopia.ui.theme.Red
 import com.example.aklatopia.ui.theme.Yellow
-import io.github.jan.supabase.gotrue.auth
-import kotlinx.coroutines.launch
+import com.example.aklatopia.profile.components.SignOutAlert
 
 @Composable
 fun ProfileScreen(navHostController: NavHostController){
@@ -79,6 +70,9 @@ fun ProfileScreen(navHostController: NavHostController){
     val userState = remember { mutableStateOf(user) }
     val imageUri = remember { mutableStateOf<Uri?>(null) }
 
+    userState.value.userName =  if (userState.value.userName == "") "Create a Username" else userState.value.userName
+    userState.value.bio =  if (userState.value.bio == "") "Add a Bio" else userState.value.bio
+
     LabeledHeader(label = "Profile") {padding ->
     Column (
         modifier = Modifier
@@ -91,7 +85,7 @@ fun ProfileScreen(navHostController: NavHostController){
             Line()
             OverallProgressBar((progress/6), navHostController)
             Line()
-            ProfileButtonGroup(navHostController, userState = userState, imageUri = imageUri)
+            ProfileButtonGroup(userState = userState, imageUri = imageUri)
         }
     }
 }
@@ -142,7 +136,7 @@ fun ProfileInfo(userState: MutableState<User>, imageUri: MutableState<Uri?>){
                 color = DarkBlue
             )
             Text(
-                text = userState.value.userName,
+                text = "@" + userState.value.userName,
                 fontFamily = FontFamily(Font(R.font.poppins_semibold)),
                 fontSize = 15.sp,
                 color = DarkBlue
@@ -244,7 +238,6 @@ fun OverallProgressBar(progress: Int, navHostController: NavHostController){
 
 @Composable
 fun ProfileButtonGroup(
-    navHostController: NavHostController,
     userState: MutableState<User>,
     imageUri: MutableState<Uri?>
 ){
@@ -313,86 +306,3 @@ fun ProfileButtonGroup(
         }
     }
 }
-
-@Composable
-fun SignOutAlert(
-    onDismiss: () -> Unit
-){
-    val context = LocalContext.current
-    val activity = context as? Activity
-    val coroutineScope = rememberCoroutineScope()
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {},
-        modifier = Modifier
-            .height(200.dp),
-        containerColor = Beige,
-        title = {
-            Box(
-                modifier = Modifier.fillMaxWidth()
-            ){
-                Text(
-                    text = "Are you Sure?",
-                    fontFamily = FontFamily(Font(R.font.poppins_extrabold)),
-                    fontSize = 32.sp,
-                    color = DarkBlue,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                )
-            }
-        },
-
-        text = {
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier
-                    .padding(top = 20.dp)
-                    .fillMaxWidth()
-            ) {
-                Button(
-                    onClick = onDismiss,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Green,
-                        contentColor = Beige
-                    ),
-                    modifier = Modifier
-                        .width(130.dp)
-                        .height(50.dp)
-                ) {
-                    Text(
-                        text = "Cancel",
-                        fontFamily = FontFamily(Font(R.font.poppins_extrabold)),
-                        fontSize = 15.sp,
-                    )
-                }
-                Button(
-                    onClick = {
-                        coroutineScope.launch {
-                            SupabaseClient.logout()
-                            Toast.makeText(context,"Signed Out", Toast.LENGTH_SHORT).show()
-                        }
-
-                        activity?.let {
-                        it.finish()
-                        it.startActivity(it.intent) }
-                              },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Red,
-                        contentColor = Beige
-                    ),
-                    modifier = Modifier
-                        .width(130.dp)
-                        .height(50.dp)
-                ) {
-                    Text(
-                        text = "Sign Out",
-                        fontFamily = FontFamily(Font(R.font.poppins_extrabold)),
-                        fontSize = 15.sp,
-                    )
-                }
-            }
-        }
-    )
-}
-

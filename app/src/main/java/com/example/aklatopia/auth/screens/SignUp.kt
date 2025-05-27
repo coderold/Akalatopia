@@ -185,9 +185,9 @@ fun SignUp(navHostController: NavHostController){
                                     Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
                                 }
                                 else -> {
-//                                    coroutineScope.launch{
-//                                        SupabaseClient.signUpNewUser()
-//                                    }
+                                    coroutineScope.launch{
+                                        SupabaseClient.signUpNewUser(email,pass)
+                                    }
                                     Toast.makeText(context, "Account Created!", Toast.LENGTH_SHORT).show()
                                     navHostController.navigate("main")
                                 }
