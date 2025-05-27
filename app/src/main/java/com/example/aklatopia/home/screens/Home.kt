@@ -121,30 +121,30 @@ fun Home(navHostController: NavHostController){
                     }
                 }
             } else{
-                BookGrid(navHostController)
+                //BookGrid(navHostController)
 
-//                if (SupabaseBooks.isEmpty()) {
-//                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//                        CircularProgressIndicator(color = DarkBlue)
-//                    }
-//                }
-//
-//                LazyVerticalGrid(
-//                    columns = GridCells.Fixed(2),
-//                    verticalArrangement = Arrangement.spacedBy(10.dp),
-//                    horizontalArrangement = Arrangement.SpaceEvenly
-//                ){
-//
-//                    items(SupabaseBooks){ book->
-//                        SupabaseImageCard(
-//                            pic = book.cover,
-//                            desc = book.desc,
-//                            title = book.title,
-//                            id = book.id,
-//                            navHostController = navHostController
-//                        )
-//                    }
-//                }
+                if (SupabaseBooks.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = DarkBlue)
+                    }
+                }
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ){
+
+                    items(SupabaseBooks){ book->
+                        SupabaseImageCard(
+                            pic = book.cover,
+                            desc = book.desc,
+                            title = book.title,
+                            id = book.id,
+                            navHostController = navHostController
+                        )
+                    }
+                }
 
             }
 

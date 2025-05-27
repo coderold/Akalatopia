@@ -36,19 +36,6 @@ val user = User(
     bio = "“hindi mahalagang magwagi, aaaaaaaaaaaaaaa” - Lebron James",
     avatar = "https://res.cloudinary.com/dzdivpj68/image/upload/user_profile_pic_sdeooq.png",
 
-    pass = "123",
-    email = "user"
+    pass = "123456",
+    email = "user@gmail.com"
 )
-
-//var user by remember {
-//    mutableStateOf(
-//        User(
-//            userId = "user1",
-//            name = "Matthew Molina",
-//            userName = "@posahh",
-//            bio = "“hindi mahalagang magwagi, aaaaaaaaaaaaaaa” - Lebron James",
-//            avatar = "https://res.cloudinary.com/dzdivpj68/image/upload/user_profile_pic_sdeooq.png"
-//        )
-//    )
-//}
-

@@ -23,11 +23,13 @@ import androidx.navigation.NavHostController
 import com.example.aklatopia.assets.BeigeBackButton
 import com.example.aklatopia.assets.BlueBackButton
 import com.example.aklatopia.R
+import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.auth.components.InfoFields
 import com.example.aklatopia.auth.components.PasswordFields
 import com.example.aklatopia.auth.components.RoutedButton
 import com.example.aklatopia.auth.components.StyledTextField
 import com.example.aklatopia.ui.theme.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun SignUp(navHostController: NavHostController){
@@ -37,6 +39,8 @@ fun SignUp(navHostController: NavHostController){
     ) {
         val isScreenRotated = maxWidth > 450.dp
         val context = LocalContext.current
+        val coroutineScope = rememberCoroutineScope()
+
         Box(modifier = Modifier
             .background(Beige)
             .fillMaxSize()
@@ -181,6 +185,9 @@ fun SignUp(navHostController: NavHostController){
                                     Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
                                 }
                                 else -> {
+//                                    coroutineScope.launch{
+//                                        SupabaseClient.signUpNewUser()
+//                                    }
                                     Toast.makeText(context, "Account Created!", Toast.LENGTH_SHORT).show()
                                     navHostController.navigate("main")
                                 }

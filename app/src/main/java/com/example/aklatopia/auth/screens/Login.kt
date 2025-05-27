@@ -32,11 +32,13 @@ import com.example.aklatopia.GoogleSignInButton
 import com.example.aklatopia.assets.BeigeBackButton
 import com.example.aklatopia.assets.BlueBackButton
 import com.example.aklatopia.R
+import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.auth.components.PasswordTextField
 import com.example.aklatopia.auth.components.RoutedButton
 import com.example.aklatopia.auth.components.StyledTextField
 import com.example.aklatopia.data.user
 import com.example.aklatopia.ui.theme.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun Login(navHostController: NavHostController){
@@ -46,6 +48,8 @@ fun Login(navHostController: NavHostController){
     ){
         val context = LocalContext.current
         val isScreenRotated = maxWidth > 450.dp
+        val coroutineScope = rememberCoroutineScope()
+
         Box(
             modifier = Modifier
                 .background(Beige)
@@ -142,15 +146,19 @@ fun Login(navHostController: NavHostController){
                                 email.isBlank() || pass.isBlank() -> {
                                     Toast.makeText(context, "Please fill out all fields", Toast.LENGTH_SHORT).show()
                                 }
-                                email != user.email || pass != user.pass -> {
-                                    Toast.makeText(context, "Credentials not Found", Toast.LENGTH_SHORT).show()
-                                }
                                 else -> {
-                                    Toast.makeText(context, "Logged In", Toast.LENGTH_SHORT).show()
-                                    navHostController.navigate("main")
+                                    coroutineScope.launch {
+                                        val success = SupabaseClient.signInWithEmail(email, pass)
+                                        if (success) {
+                                            Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
+                                            navHostController.navigate("main")
+                                        } else {
+                                            Toast.makeText(context, "Invalid credentials", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
                                 }
                             }
-                        },
+                                  },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Red,
                             contentColor = MaterialTheme.colorScheme.onTertiary
@@ -167,18 +175,8 @@ fun Login(navHostController: NavHostController){
                         )
                     }
 
-//                    Text(
-//                        text = "Or Sign in With Google",
-//                        color = Green,
-//                        fontFamily = FontFamily(Font(R.font.poppins_medium)),
-//                        fontSize = 14.sp,
-//                        modifier = Modifier
-//                            .clickable {
-//                                navHostController.navigate("main")
-//                            }
-//                            .align(Alignment.CenterHorizontally)
-//                    )
                     GoogleSignInButton(navHostController)
+
                     Image(
                         painter = painterResource(id = R.drawable.google_icon),
                         contentDescription = "Google",
