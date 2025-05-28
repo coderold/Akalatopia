@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.aklatopia.OnlineImage
 import com.example.aklatopia.R
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
@@ -47,7 +48,7 @@ fun ReviewDialog(
     onPost: (String) -> Unit,
     username: String,
     handle: String,
-    profilePic: Int
+    profilePic: String
 ) {
     var reviewText by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
@@ -65,8 +66,8 @@ fun ReviewDialog(
                 .fillMaxWidth()
                 .padding(top = 5.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.back_icon),
+            OnlineImage(
+                imageUrl = profilePic,
                 contentDescription = "Back",
                 modifier = Modifier
                     .align(Alignment.CenterStart)
@@ -93,8 +94,8 @@ fun ReviewDialog(
             Spacer(modifier = Modifier.height(25.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = profilePic),
+                OnlineImage(
+                    imageUrl = profilePic,
                     contentDescription = "Profile Picture",
                     modifier = Modifier
                         .clip(RoundedCornerShape(50))

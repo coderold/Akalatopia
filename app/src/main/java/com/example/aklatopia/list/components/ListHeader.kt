@@ -35,7 +35,7 @@ import androidx.navigation.NavHostController
 import com.example.aklatopia.WindowInfo
 import com.example.aklatopia.data.ListVM
 import com.example.aklatopia.data.List
-import com.example.aklatopia.data.user
+import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.rememberWindowInfo
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
@@ -145,7 +145,7 @@ fun ListHeader(
                 onConfirm = {
                     ListVM().createList(
                         List(
-                            user = user,
+                            user = SupabaseUser.userState.value,
                             name = listName,
                         )
                     )

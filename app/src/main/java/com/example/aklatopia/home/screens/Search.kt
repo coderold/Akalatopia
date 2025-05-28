@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -74,11 +75,16 @@ import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.ImageCard
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
+import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.WindowInfo
 import com.example.aklatopia.data.books
+import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.home.components.SearchBookCard
 import com.example.aklatopia.rememberWindowInfo
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun Search(navHostController: NavHostController){
@@ -87,6 +93,7 @@ fun Search(navHostController: NavHostController){
     var selectedCategory by remember { mutableStateOf<BookCategory?>(null) }
     val windowInfo = rememberWindowInfo()
     val isScreenRotated = windowInfo.screenWidthInfo is WindowInfo.WindowType.Medium
+
 
     Scaffold(
         topBar = {
@@ -282,11 +289,20 @@ fun SearchBookCard(
     selectedCategory: BookCategory?,
     paddingValues: PaddingValues
 ){
+    val SupabaseBooks = remember { mutableStateListOf<Bookz>() }
+
+    LaunchedEffect(Unit){
+        withContext(Dispatchers.IO){
+            val result = SupabaseClient.client.from("Books").select().decodeList<Bookz>()
+            SupabaseBooks.addAll(result)
+        }
+    }
+
     val filteredBooks by remember(title, selectedCategory) {
         derivedStateOf {
-            books.filter { book ->
+            SupabaseBooks.filter { book ->
                 book.title.contains(title, ignoreCase = true) &&
-                        (selectedCategory == null || book.category == selectedCategory)
+                        (selectedCategory == null || book.category == selectedCategory.displayName)
             }
         }
     }
@@ -301,7 +317,7 @@ fun SearchBookCard(
             SearchBookCard(
                 book.title,
                 navHostController,
-                onClick = {}
+                SupabaseBooks
             )
         }
 

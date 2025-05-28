@@ -16,7 +16,8 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.navigation.NavHostController
-import com.example.aklatopia.data.user
+import com.example.aklatopia.data.SupabaseUser
+import com.example.aklatopia.data.User
 import com.example.aklatopia.ui.theme.DarkBlue
 import com.example.aklatopia.ui.theme.Green
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -28,8 +29,10 @@ import io.github.jan.supabase.gotrue.Auth
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.Google
 import io.github.jan.supabase.gotrue.providers.builtin.IDToken
+import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.jsonPrimitive
 import java.security.MessageDigest
 import java.util.UUID
 
@@ -73,15 +76,18 @@ fun GoogleSignInButton(navHostController: NavHostController) {
 
                 val googleIdToken = googleIdTokenCredential.idToken
 
-                Toast.makeText(context, "Logging In", Toast.LENGTH_SHORT).show()
 
-                navHostController.navigate("main")
 
                 SupabaseClient.client.auth.signInWith(IDToken) {
                     idToken = googleIdToken
                     provider = Google
                     nonce = rawNonce
                 }
+
+                Toast.makeText(context, "Logging In", Toast.LENGTH_SHORT).show()
+                navHostController.navigate("main")
+                SupabaseUser.refreshUser()
+
 
                 // Handle successful sign-in
             } catch (e: GetCredentialException) {

@@ -1,6 +1,7 @@
 package com.example.aklatopia
 
 import android.util.Log
+import com.example.aklatopia.data.User
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.Auth
@@ -8,6 +9,7 @@ import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 //import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.storage.Storage
 
 object SupabaseClient {
@@ -52,5 +54,19 @@ object SupabaseClient {
             false
         }
     }
+
+    suspend fun newUser(user: User) {
+        try {
+            val insertedUser = client
+                .from("Users")
+                .insert(listOf(user))
+                .decodeSingle<User>()
+            Log.d("Supabase", "User inserted: $insertedUser")
+        } catch (e: Exception) {
+            Log.e("Supabase", "Insert failed: ${e.message}")
+        }
+    }
+
+
 
 }

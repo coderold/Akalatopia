@@ -63,7 +63,7 @@ class ListVM: ViewModel(){
     fun updateList(id: String?, newName: String){
         val updatedList = List(
             id = id,
-            user = user,
+            user = SupabaseUser.userState.value,
             name = newName
         )
         ref.child(id.toString())

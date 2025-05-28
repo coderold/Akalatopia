@@ -14,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.aklatopia.R
 import com.example.aklatopia.SupabaseClient
+import com.example.aklatopia.data.SupabaseUser
+import com.example.aklatopia.data.User
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
 import com.example.aklatopia.ui.theme.Green
@@ -32,7 +35,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SignOutAlert(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ){
     val context = LocalContext.current
     val activity = context as? Activity
@@ -86,6 +89,7 @@ fun SignOutAlert(
                     onClick = {
                         coroutineScope.launch {
                             SupabaseClient.logout()
+                            SupabaseUser.userState.value = User()
                             Toast.makeText(context,"Signed Out", Toast.LENGTH_SHORT).show()
                         }
 

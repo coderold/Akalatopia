@@ -65,8 +65,8 @@ import com.example.aklatopia.data.FirebaseRatingsVM
 import com.example.aklatopia.data.FirebaseReviewVM
 import com.example.aklatopia.data.Rating
 import com.example.aklatopia.data.Review
+import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.data.books
-import com.example.aklatopia.data.user
 import com.example.aklatopia.home.components.AddToFavoritesBtn
 import com.example.aklatopia.home.components.AskForReview
 import com.example.aklatopia.home.components.BookVM
@@ -256,7 +256,7 @@ fun DetailScreen(
                                             Rating(
                                                 rating = selectedStars,
                                                 bookId = book.id,
-                                                userId = user.userId
+                                                userId = SupabaseUser.userState.value.userId
                                             )
                                         )
                                         showRateDialog = false
@@ -285,7 +285,7 @@ fun DetailScreen(
                                     onPost = { reviewText ->
                                         ReviewVM.uploadReview(
                                             Review(
-                                                user = user,
+                                                user = SupabaseUser.userState.value,
                                                 date = formattedDate,
                                                 bookId = book.id,
                                                 review = reviewText
@@ -299,9 +299,9 @@ fun DetailScreen(
                                             )
                                         }
                                     },
-                                    profilePic = R.drawable.user_profile_pic,
-                                    handle = "@pusangpagod",
-                                    username = "Matthew Molina"
+                                    profilePic = SupabaseUser.userState.value.avatar,
+                                    handle = "@"+ SupabaseUser.userState.value.userName,
+                                    username = SupabaseUser.userState.value.name
                                 )
                             }
                         }
@@ -412,7 +412,7 @@ fun DetailScreen(
                                         if (reviewText.isNotEmpty()){
                                             ReviewVM.uploadReview(
                                                 Review(
-                                                    user = user,
+                                                    user = SupabaseUser.userState.value,
                                                     date = formattedDate,
                                                     bookId = book.id,
                                                     review = reviewText
@@ -440,9 +440,9 @@ fun DetailScreen(
                                     },
 
                                     //user info
-                                    profilePic = R.drawable.user_profile_pic,
-                                    handle = "@pusangpagod",
-                                    username = "Matthew Molina"
+                                    profilePic = SupabaseUser.userState.value.avatar,
+                                    handle = "@"+ SupabaseUser.userState.value.userName,
+                                    username = SupabaseUser.userState.value.name
                                 )
                             }
                         }

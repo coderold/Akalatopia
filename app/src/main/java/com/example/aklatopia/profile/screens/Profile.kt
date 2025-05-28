@@ -48,9 +48,11 @@ import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.LabeledHeader
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
+import com.example.aklatopia.data.SupabaseUser
+import com.example.aklatopia.data.SupabaseUser.userState
 import com.example.aklatopia.data.User
-import com.example.aklatopia.data.user
 import com.example.aklatopia.profile.components.EditProfileDialog
+import com.example.aklatopia.profile.components.ProfileInfo
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
 import com.example.aklatopia.ui.theme.Green
@@ -67,10 +69,9 @@ fun ProfileScreen(navHostController: NavHostController){
         progress += bookCategory.progress
     }
 
-    val userState = remember { mutableStateOf(user) }
     val imageUri = remember { mutableStateOf<Uri?>(null) }
 
-    userState.value.userName =  if (userState.value.userName == "") "Create a Username" else userState.value.userName
+    userState.value.userName =  if (userState.value.userName == "") "CreateUsername" else userState.value.userName
     userState.value.bio =  if (userState.value.bio == "") "Add a Bio" else userState.value.bio
 
     LabeledHeader(label = "Profile") {padding ->
@@ -81,91 +82,13 @@ fun ProfileScreen(navHostController: NavHostController){
                 state = scrollState
             )
         ){
-            ProfileInfo(userState, imageUri)
+            ProfileInfo(imageUri)
             Line()
             OverallProgressBar((progress/6), navHostController)
             Line()
             ProfileButtonGroup(userState = userState, imageUri = imageUri)
         }
     }
-}
-
-@Composable
-fun ProfileInfo(userState: MutableState<User>, imageUri: MutableState<Uri?>){
-    Box(
-        modifier = Modifier
-            .background(Beige)
-            .fillMaxWidth()
-            .height(300.dp)
-    ){
-        Card (
-            shape = RoundedCornerShape(75.dp),
-            modifier = Modifier
-                .padding(20.dp)
-                .size(100.dp)
-                .align(Alignment.TopCenter)
-        ) {
-
-            if (imageUri.value != null) {
-                Image(
-                    painter = rememberAsyncImagePainter(imageUri.value),
-                    contentDescription = "profile pic",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
-                OnlineImage(
-                    imageUrl = userState.value.avatar,
-                    contentDescription = "profile pic",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxSize()
-                )
-            }
-
-        }
-        Column(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(top = 125.dp, start = 20.dp)
-        ) {
-            Text(
-                text = userState.value.name,
-                fontFamily = FontFamily(Font(R.font.poppins_extrabold)),
-                fontSize = 24.sp,
-                color = DarkBlue
-            )
-            Text(
-                text = "@" + userState.value.userName,
-                fontFamily = FontFamily(Font(R.font.poppins_semibold)),
-                fontSize = 15.sp,
-                color = DarkBlue
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .padding(20.dp)
-                .fillMaxWidth()
-                .height(80.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(Yellow)
-                .align(Alignment.BottomCenter)
-
-        ){
-            Text(
-                text = userState.value.bio,
-                fontFamily = FontFamily(Font(R.font.poppins_medium)),
-                fontSize = 15.sp,
-                textAlign = TextAlign.Center,
-                color = DarkBlue,
-                modifier = Modifier
-                    .align(Alignment.Center)
-            )
-        }
-    }
-
-
 }
 
 @Composable

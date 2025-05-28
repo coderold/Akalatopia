@@ -36,7 +36,7 @@ import androidx.navigation.NavHostController
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
 import com.example.aklatopia.data.ListVM
-import com.example.aklatopia.data.user
+import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.list.components.AddListDialog
 import com.example.aklatopia.list.components.ConfirmListDeleteDialog
 import com.example.aklatopia.list.components.EditListDialog
@@ -67,7 +67,7 @@ fun Lists(navHostController: NavHostController,paddingValues: PaddingValues){
             .padding(paddingValues)
     ){
 
-        val myLists = ListVM.list.filter { it.user.userId == user.userId }
+        val myLists = ListVM.list.filter { it.user.userId == SupabaseUser.userState.value.userId }
 
         if (myLists.isEmpty()){
             item {

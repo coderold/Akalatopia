@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.sp
 import com.example.aklatopia.R
 import com.example.aklatopia.data.Favorite
 import com.example.aklatopia.data.FavoritesVM
+import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.data.books
-import com.example.aklatopia.data.user
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
 import com.example.aklatopia.ui.theme.Red
@@ -89,7 +89,7 @@ fun AddToFavoritesBtn(
                 favoritesVM.addToFavorites(
                     Favorite(
                         bookId = bookId,
-                        userId = user.userId
+                        userId = SupabaseUser.userState.value.userId
                     )
                 )
 

@@ -60,12 +60,14 @@ import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
 import com.example.aklatopia.SupabaseClient
+import com.example.aklatopia.data.FavoritesVM
 import com.example.aklatopia.data.FirebaseRatingsVM
 import com.example.aklatopia.data.FirebaseReviewVM
 import com.example.aklatopia.data.Rating
 import com.example.aklatopia.data.Review
+import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.data.books
-import com.example.aklatopia.data.user
+import com.example.aklatopia.home.components.AddToFavoritesBtn
 import com.example.aklatopia.home.components.AskForReview
 import com.example.aklatopia.home.components.BookVM
 import com.example.aklatopia.home.components.Bookz
@@ -94,7 +96,8 @@ fun OnlineDetailScreen(
     navHostController: NavHostController,
     id: Int,
     ReviewVM: FirebaseReviewVM,
-    RatingVM: FirebaseRatingsVM
+    RatingVM: FirebaseRatingsVM,
+    favoritesVM: FavoritesVM
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -110,6 +113,15 @@ fun OnlineDetailScreen(
             SupabaseBooks.addAll(result)
         }
     }
+
+    val favoritesId = remember { mutableStateListOf<Int>() }
+
+    LaunchedEffect(favoritesVM.favorites) {
+        favoritesId.clear()
+        favoritesId.addAll(favoritesVM.favorites.map { it.bookId })
+    }
+
+    val isFavoriteBook = favoritesId.contains(id)
 
     Scaffold(
         snackbarHost = {
@@ -206,38 +218,16 @@ fun OnlineDetailScreen(
                                 .padding(vertical = 10.dp),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            Button(
-                                onClick = {
-                                    coroutineScope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            message = "Added to Favorites",
-                                            duration = SnackbarDuration.Short
-                                        )
-                                    }
-                                },
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(190.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Red
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Favorite,
-                                    contentDescription = null,
-                                    tint = Yellow,
-                                    modifier = Modifier
-                                        .size(22.dp)
-                                )
-                                Text(
-                                    text = "Add to Favorites",
-                                    fontFamily = FontFamily(Font(R.font.poppins_extrabold)),
-                                    color = Beige,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier
-                                        .padding(start = 5.dp)
-                                )
-                            }
+
+                            AddToFavoritesBtn(
+                                coroutineScope = coroutineScope,
+                                snackbarHostState = snackbarHostState,
+                                favoritesVM = favoritesVM,
+                                bookId = book.id,
+                                favoritesId = favoritesId,
+                                isFavoriteBook = isFavoriteBook
+                            )
+
                             Button(
                                 onClick = {showRateDialog = true},
                                 modifier = Modifier
@@ -273,7 +263,7 @@ fun OnlineDetailScreen(
                                             Rating(
                                                 rating = selectedStars,
                                                 bookId = book.id,
-                                                userId = "asdasdasd"
+                                                userId = SupabaseUser.userState.value.userId
                                             )
                                         )
                                         showRateDialog = false
@@ -302,7 +292,7 @@ fun OnlineDetailScreen(
                                     onPost = { reviewText ->
                                          ReviewVM.uploadReview(
                                              Review(
-                                                 user = user,
+                                                 user = SupabaseUser.userState.value,
                                                  date = formattedDate,
                                                  bookId = book.id,
                                                  review = reviewText
@@ -316,9 +306,9 @@ fun OnlineDetailScreen(
                                             )
                                         }
                                     },
-                                    profilePic = R.drawable.user_profile_pic,
-                                    handle = "@pusangpagod",
-                                    username = "Matthew Molina"
+                                    profilePic = SupabaseUser.userState.value.avatar,
+                                    handle = "@"+ SupabaseUser.userState.value.userName,
+                                    username = SupabaseUser.userState.value.name
                                 )
                             }
                         }
@@ -429,7 +419,7 @@ fun OnlineDetailScreen(
                                         if (reviewText.isNotEmpty()){
                                             ReviewVM.uploadReview(
                                                 Review(
-                                                    user = user,
+                                                    user = SupabaseUser.userState.value,
                                                     date = formattedDate,
                                                     bookId = book.id,
                                                     review = reviewText
@@ -457,9 +447,9 @@ fun OnlineDetailScreen(
                                     },
 
                                     //user info
-                                    profilePic = R.drawable.user_profile_pic,
-                                    handle = "@pusangpagod",
-                                    username = "Matthew Molina"
+                                    profilePic = SupabaseUser.userState.value.avatar,
+                                    handle = "@"+ SupabaseUser.userState.value.userName,
+                                    username = SupabaseUser.userState.value.name
                                 )
                             }
                         }

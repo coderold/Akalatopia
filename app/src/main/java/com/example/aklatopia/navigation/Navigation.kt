@@ -101,7 +101,7 @@ fun MainAppScreen() {
 
             composable("onlineDetail/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
-                OnlineDetailScreen(navController, id, FirebaseReviewVM(), FirebaseRatingsVM())
+                OnlineDetailScreen(navController, id, FirebaseReviewVM(), FirebaseRatingsVM(), FavoritesVM())
             }
 
             composable("listContent/{id}") { backStackEntry ->

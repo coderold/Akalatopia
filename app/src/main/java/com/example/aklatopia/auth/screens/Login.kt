@@ -36,7 +36,7 @@ import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.auth.components.PasswordTextField
 import com.example.aklatopia.auth.components.RoutedButton
 import com.example.aklatopia.auth.components.StyledTextField
-import com.example.aklatopia.data.user
+import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.ui.theme.*
 import kotlinx.coroutines.launch
 
@@ -150,6 +150,7 @@ fun Login(navHostController: NavHostController){
                                     coroutineScope.launch {
                                         val success = SupabaseClient.signInWithEmail(email, pass)
                                         if (success) {
+                                            SupabaseUser.refreshUser()
                                             Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
                                             navHostController.navigate("main")
                                         } else {

@@ -9,11 +9,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,15 +25,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.assets.ImageCard
 import com.example.aklatopia.WindowInfo
 import com.example.aklatopia.data.favorites
 import com.example.aklatopia.assets.LabeledHeader
+import com.example.aklatopia.assets.SupabaseImageCard
 import com.example.aklatopia.data.FavoritesVM
 import com.example.aklatopia.data.books
+import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.list.components.ListBookCard
 import com.example.aklatopia.rememberWindowInfo
 import com.example.aklatopia.ui.theme.Beige
+import com.example.aklatopia.ui.theme.DarkBlue
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 @Composable
 fun FavoritesScreen(
@@ -41,13 +53,21 @@ fun FavoritesScreen(
 
     val favoritesId = remember { mutableStateListOf<Int>() }
 
+    val SupabaseBooks = remember { mutableStateListOf<Bookz>() }
+
     LaunchedEffect(favoritesVM.favorites){
         favoritesId.clear()
         favoritesId.addAll(favoritesVM.favorites.map { it.bookId })
     }
 
-    val favoriteBooks = books.filter { it.id in favoritesId }
+    LaunchedEffect(Unit){
+        withContext(Dispatchers.IO){
+            val result = SupabaseClient.client.from("Books").select().decodeList<Bookz>()
+            SupabaseBooks.addAll(result)
+        }
+    }
 
+    val favoriteBooks = SupabaseBooks.filter { it.id in favoritesId }
 
     LabeledHeader(label = "Favorites") { padding->
 
@@ -77,20 +97,13 @@ fun FavoritesScreen(
                 } else {
 
                     items(favoriteBooks){ book->
-                        ImageCard(
+                        SupabaseImageCard(
                             pic = book.cover,
                             desc = book.desc,
                             title = book.title,
+                            id = book.id,
                             navHostController = navHostController
                         )
-                    }
-
-                    if (favoriteBooks.isNotEmpty()){
-
-                    } else {
-                        item {
-
-                        }
                     }
 
                 }

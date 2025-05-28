@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.aklatopia.OnlineImage
 import com.example.aklatopia.assets.BeigeBackButton
 import com.example.aklatopia.data.BookCategory
 import com.example.aklatopia.assets.ExtraBoldText
@@ -63,8 +64,8 @@ import com.example.aklatopia.data.Book
 import com.example.aklatopia.data.Booklist
 import com.example.aklatopia.data.BooklistVM
 import com.example.aklatopia.data.ListVM
+import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.data.books
-import com.example.aklatopia.data.user
 import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.home.screens.CategoriesRow
 import com.example.aklatopia.home.screens.CustomShapeSearchBar
@@ -204,15 +205,24 @@ fun AddToListFilteredCard(
     paddingValues: PaddingValues
 ) {
 
+    val SupabaseBooks = remember { mutableStateListOf<Bookz>() }
+
+    LaunchedEffect(Unit){
+        withContext(Dispatchers.IO){
+            val result = SupabaseClient.client.from("Books").select().decodeList<Bookz>()
+            SupabaseBooks.addAll(result)
+        }
+    }
+
     val filteredBooks by remember(title, selectedCategory) {
         derivedStateOf {
-            books.filter { book ->
-                book.id !in booksId &&
-                        book.title.contains(title, ignoreCase = true) &&
-                        (selectedCategory == null || book.category == selectedCategory)
+            SupabaseBooks.filter { book ->
+                book.title.contains(title, ignoreCase = true) &&
+                        (selectedCategory == null || book.category == selectedCategory.displayName)
             }
         }
     }
+
     LazyColumn(
         modifier = Modifier
             .background(Beige)
@@ -228,7 +238,8 @@ fun AddToListFilteredCard(
                 listId,
                 book.id,
                 booksId,
-                booklistVM
+                booklistVM,
+                SupabaseBooks
             )
         }
 
@@ -246,9 +257,11 @@ fun AddToListCard(
     listId: String,
     bookId: Int,
     booksId: SnapshotStateList<Int>,
-    booklistVM: BooklistVM
+    booklistVM: BooklistVM,
+    SupabaseBooks: SnapshotStateList<Bookz>
+
 ){
-    val book = books[books.indexOfFirst { it.title == title }]
+    val book = SupabaseBooks[SupabaseBooks.indexOfFirst { it.title == title }]
     val listVM: ListVM = viewModel()
     val listName = listVM.list.find { it.id == listId }?.name ?: "Unnamed"
 
@@ -257,7 +270,7 @@ fun AddToListCard(
             .padding(10.dp)
             .fillMaxWidth()
             .height(120.dp)
-            .clickable { navHostController.navigate("detail/$title") },
+            .clickable { navHostController.navigate("onlineDetail/${book.id}") },
         elevation = CardDefaults.cardElevation(5.dp)
     ) {
         Box(
@@ -266,8 +279,8 @@ fun AddToListCard(
                 .background(Yellow)
         ){
             Row{
-                Image(
-                    painter = painterResource(id = book.cover),
+                OnlineImage(
+                    imageUrl = book.cover,
                     contentDescription = book.desc,
                     modifier = Modifier
                         .clip(RoundedCornerShape(10.dp))
@@ -299,13 +312,12 @@ fun AddToListCard(
                             .padding(end = 10.dp)
                             .align(Alignment.CenterEnd)
                             .clickable {
-                                //TODO
 
                                 booklistVM.addToBooklist(
                                     Booklist(
                                         listId = listId,
                                         bookId = bookId,
-                                        userId = user.userId
+                                        userId = SupabaseUser.userState.value.userId
                                     )
                                 )
 
