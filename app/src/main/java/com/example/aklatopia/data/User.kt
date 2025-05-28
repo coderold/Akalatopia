@@ -17,21 +17,11 @@ import kotlin.collections.List
 data class User(
     val id: Int? = null,
     val userId: String = "",
-    val name: String = "",
+    var name: String = "",
     var userName: String = "",
     var bio: String = "",
-    val avatar: String = "",
+    var avatar: String = "",
 )
-
-//@Serializable
-//data class User(
-//    val id: Int? = null,
-//    @SerialName("userId") val userId: String = "",
-//    @SerialName("name") val name: String = "",
-//    @SerialName("userName") var userName: String? = null,
-//    @SerialName("bio") var bio: String? = null,
-//    @SerialName("avatar") val avatar: String? = null
-//)
 
 object SupabaseUser {
     val userState = mutableStateOf(User())

@@ -1,6 +1,7 @@
 package com.example.aklatopia.profile.components
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -51,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.aklatopia.OnlineImage
 import com.example.aklatopia.R
+import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.WindowInfo
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.data.SupabaseUser
@@ -63,6 +65,7 @@ import com.example.aklatopia.ui.theme.OffWhite
 import com.example.aklatopia.ui.theme.Red
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.jsonPrimitive
+import java.util.UUID
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -298,6 +301,14 @@ fun EditProfileDialog(
                             )
 
                             coroutineScope.launch {
+                                imageUri.value?.let {
+                                    SupabaseClient.uploadAvatar(
+                                        context = context,
+                                        uri = it,
+                                        path = "users/${UUID.randomUUID()}.jpg"
+                                    )
+                                }
+
                                 SupabaseUser.updateUser(
                                     User(
                                         userId = userState.value.userId,

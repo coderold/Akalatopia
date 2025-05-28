@@ -1,5 +1,6 @@
 package com.example.aklatopia.home.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -49,11 +50,14 @@ import com.example.aklatopia.R
 import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.WindowInfo
 import com.example.aklatopia.assets.SupabaseImageCard
+import com.example.aklatopia.data.SupabaseUser
+import com.example.aklatopia.data.User
 import com.example.aklatopia.data.books
 import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.home.components.HomeBookCard
 import com.example.aklatopia.rememberWindowInfo
 import com.example.aklatopia.ui.theme.*
+import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -64,11 +68,30 @@ fun Home(navHostController: NavHostController){
     val isScreenRotated = windowInfo.screenWidthInfo is WindowInfo.WindowType.Medium
 
     val SupabaseBooks = remember { mutableStateListOf<Bookz>() }
+    val users = remember { mutableStateListOf<User>() }
 
     LaunchedEffect(Unit){
         withContext(Dispatchers.IO){
+            val currentId = SupabaseClient.client.auth.currentUserOrNull()?.id
             val result = SupabaseClient.client.from("Books").select().decodeList<Bookz>()
             SupabaseBooks.addAll(result)
+
+            val userResult = SupabaseClient.client.from("Users").select().decodeList<User>()
+            users.addAll(userResult)
+
+            val userIds = userResult.map { it.userId }
+            Log.d("DEBUG", "All user IDs: $userIds")
+
+            val currentUser = userResult.find { it.userId ==  currentId}
+
+            if (currentUser != null) {
+                SupabaseUser.userState.value.userName = currentUser.userName
+                SupabaseUser.userState.value.name = currentUser.name
+                SupabaseUser.userState.value.bio = currentUser.bio
+                SupabaseUser.userState.value.avatar = currentUser.avatar
+            }
+
+            SupabaseUser.verifyUserIdInListAndInsertIfMissing(userIds)
         }
     }
 

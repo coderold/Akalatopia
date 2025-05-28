@@ -28,7 +28,10 @@ import com.example.aklatopia.auth.components.InfoFields
 import com.example.aklatopia.auth.components.PasswordFields
 import com.example.aklatopia.auth.components.RoutedButton
 import com.example.aklatopia.auth.components.StyledTextField
+import com.example.aklatopia.data.User
 import com.example.aklatopia.ui.theme.*
+import io.github.jan.supabase.gotrue.auth
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -188,6 +191,7 @@ fun SignUp(navHostController: NavHostController){
                                     coroutineScope.launch{
                                         SupabaseClient.signUpNewUser(email,pass)
                                     }
+
                                     Toast.makeText(context, "Account Created!", Toast.LENGTH_SHORT).show()
                                     navHostController.navigate("main")
                                 }

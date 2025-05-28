@@ -1,5 +1,7 @@
 package com.example.aklatopia
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import com.example.aklatopia.data.User
 import io.github.jan.supabase.SupabaseClient
@@ -11,6 +13,7 @@ import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.storage.Storage
+import io.github.jan.supabase.storage.storage
 
 object SupabaseClient {
     private const val SUPABASE_URL = BuildConfig.SUPABASE_URL
@@ -68,5 +71,28 @@ object SupabaseClient {
     }
 
 
+    fun uriToByteArray(context: Context, uri: Uri): ByteArray? {
+        return try {
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                input.readBytes()
+            }
+        } catch (e: Exception) {
+            Log.e("Supabase", "Error reading URI: ${e.message}")
+            null
+        }
+    }
+
+    suspend fun uploadAvatar(context: Context, uri: Uri, path: String): Boolean {
+        val bytes = uriToByteArray(context, uri) ?: return false
+
+        return try {
+            client.storage.from("users-avatar")
+                .upload(path, bytes)
+            true
+        } catch (e: Exception) {
+            Log.e("Supabase", "Upload failed: ${e.message}")
+            false
+        }
+    }
 
 }
