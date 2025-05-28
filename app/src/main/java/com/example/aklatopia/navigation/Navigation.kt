@@ -56,22 +56,26 @@ fun StartingNav() {
             SignUp(navController)
         }
         composable("main") {
-            MainAppScreen()
+            MainAppScreen("home")
         }
+        composable("profile") {
+            MainAppScreen("profile")
+        }
+
 
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MainAppScreen() {
+fun MainAppScreen(start: String) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavBar(navController) }
     ) { padding ->
         NavHost(
             navController = navController,
-            startDestination = "home",
+            startDestination = start,
             modifier = Modifier.padding(padding),
             enterTransition = {
                 fadeIn(animationSpec = tween(200))

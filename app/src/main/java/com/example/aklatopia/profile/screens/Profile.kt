@@ -1,6 +1,7 @@
 package com.example.aklatopia.profile.screens
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,8 +25,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,9 +51,11 @@ import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.LabeledHeader
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
+import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.data.SupabaseUser.userState
 import com.example.aklatopia.data.User
+import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.profile.components.EditProfileDialog
 import com.example.aklatopia.profile.components.ProfileInfo
 import com.example.aklatopia.ui.theme.Beige
@@ -59,6 +64,10 @@ import com.example.aklatopia.ui.theme.Green
 import com.example.aklatopia.ui.theme.Red
 import com.example.aklatopia.ui.theme.Yellow
 import com.example.aklatopia.profile.components.SignOutAlert
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 @Composable
 fun ProfileScreen(navHostController: NavHostController){
@@ -73,6 +82,20 @@ fun ProfileScreen(navHostController: NavHostController){
 
     userState.value.userName =  if (userState.value.userName == "") "CreateUsername" else userState.value.userName
     userState.value.bio =  if (userState.value.bio == "") "Add a Bio" else userState.value.bio
+
+    val users = remember { mutableStateListOf<User>() }
+
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            val result = SupabaseClient.client.from("Users").select().decodeList<User>()
+            users.addAll(result)
+
+            val userIds = result.map { it.userId }
+            Log.d("DEBUG", "All user IDs: $userIds")
+
+            SupabaseUser.verifyUserIdInListAndInsertIfMissing(userIds)
+        }
+    }
 
     LabeledHeader(label = "Profile") {padding ->
     Column (

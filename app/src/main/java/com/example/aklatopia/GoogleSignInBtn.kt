@@ -85,11 +85,10 @@ fun GoogleSignInButton(navHostController: NavHostController) {
                 }
 
                 Toast.makeText(context, "Logging In", Toast.LENGTH_SHORT).show()
-                navHostController.navigate("main")
+                navHostController.navigate("profile")
                 SupabaseUser.refreshUser()
 
 
-                // Handle successful sign-in
             } catch (e: GetCredentialException) {
                 // Handle GetCredentialException thrown by `credentialManager.getCredential()`
             } catch (e: GoogleIdTokenParsingException) {

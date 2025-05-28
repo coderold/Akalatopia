@@ -52,17 +52,3 @@ class BookVM: ViewModel(){
         }
     }
 }
-//
-//object SupabaseBooks{
-//    val Books = mutableStateListOf<Bookz>()
-//
-//    fun fetchBooks(){
-//        LaunchedEffect(Unit){
-//            withContext(Dispatchers.IO){
-//                val result = SupabaseClient.client.from("Books").select().decodeList<Bookz>()
-//                Books.addAll(result)
-//            }
-//        }
-//    }
-//}
-

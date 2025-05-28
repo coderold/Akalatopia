@@ -66,8 +66,8 @@ fun ReviewDialog(
                 .fillMaxWidth()
                 .padding(top = 5.dp)
         ) {
-            OnlineImage(
-                imageUrl = profilePic,
+            Image(
+                painter = painterResource(R.drawable.back_icon),
                 contentDescription = "Back",
                 modifier = Modifier
                     .align(Alignment.CenterStart)
