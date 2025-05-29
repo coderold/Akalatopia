@@ -31,6 +31,7 @@ import com.example.aklatopia.WindowInfo
 import com.example.aklatopia.assets.LabeledHeader
 import com.example.aklatopia.assets.SupabaseImageCard
 import com.example.aklatopia.data.FavoritesVM
+import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.list.components.ListBookCard
 import com.example.aklatopia.rememberWindowInfo
@@ -55,7 +56,9 @@ fun FavoritesScreen(
 
     LaunchedEffect(favoritesVM.favorites){
         favoritesId.clear()
-        favoritesId.addAll(favoritesVM.favorites.map { it.bookId })
+        favoritesId.addAll(favoritesVM.favorites
+            .filter { it.userId == SupabaseUser.userState.value.userId }
+            .map { it.bookId })
     }
 
     LaunchedEffect(Unit){

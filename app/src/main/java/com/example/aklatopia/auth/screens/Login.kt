@@ -38,6 +38,7 @@ import com.example.aklatopia.auth.components.RoutedButton
 import com.example.aklatopia.auth.components.StyledTextField
 import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.ui.theme.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -151,6 +152,7 @@ fun Login(navHostController: NavHostController){
                                         val success = SupabaseClient.signInWithEmail(email, pass)
                                         if (success) {
                                             SupabaseUser.refreshUser()
+                                            delay(500)
                                             Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
                                             navHostController.navigate("main")
                                         } else {
