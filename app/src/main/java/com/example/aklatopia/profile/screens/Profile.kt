@@ -52,6 +52,7 @@ import com.example.aklatopia.assets.LabeledHeader
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
 import com.example.aklatopia.SupabaseClient
+import com.example.aklatopia.data.FirebaseRatingsVM
 import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.data.SupabaseUser.userState
 import com.example.aklatopia.data.User
@@ -70,13 +71,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 @Composable
-fun ProfileScreen(navHostController: NavHostController){
+fun ProfileScreen(
+    navHostController: NavHostController,
+    RatingVM: FirebaseRatingsVM
+){
+
     val scrollState = rememberScrollState()
 
-    var progress = 0
-    BookCategory.allCategories.forEach{ bookCategory->
-        progress += bookCategory.progress
-    }
+    val progress = RatingVM.ratings.size
+//    BookCategory.allCategories.forEach{ bookCategory->
+//        progress += bookCategory.
+//    }
 
     val imageUri = remember { mutableStateOf<Uri?>(null) }
 
@@ -107,7 +112,7 @@ fun ProfileScreen(navHostController: NavHostController){
         ){
             ProfileInfo(imageUri)
             Line()
-            OverallProgressBar((progress/6), navHostController)
+            OverallProgressBar((progress), navHostController)
             Line()
             ProfileButtonGroup(userState = userState, imageUri = imageUri)
         }
@@ -150,7 +155,7 @@ fun OverallProgressBar(progress: Int, navHostController: NavHostController){
                         modifier = Modifier
                     )
                     ExtraBoldText(
-                        text = "$progress%",
+                        text = "${(progress * 100 / 75)}%",
                         size = 24.sp,
                         color = DarkBlue,
                         modifier = Modifier
@@ -169,7 +174,10 @@ fun OverallProgressBar(progress: Int, navHostController: NavHostController){
                 Box(
                     modifier = Modifier
                         .padding(20.dp)
-                        .fillMaxWidth(progress.toFloat() / 100)
+                        .fillMaxWidth(
+                            if (progress == 0) 0.05f
+                            else (progress / 75f).coerceAtLeast(0.05f).coerceAtMost(1f)
+                        )
                         .height(20.dp)
                         .clip(RoundedCornerShape(10.dp))
                         .background(Green)

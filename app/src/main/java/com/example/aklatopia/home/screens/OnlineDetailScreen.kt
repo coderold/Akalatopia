@@ -248,6 +248,7 @@ fun OnlineDetailScreen(
                                             Rating(
                                                 rating = selectedStars,
                                                 bookId = book.id,
+                                                category = book.category,
                                                 userId = SupabaseUser.userState.value.userId
                                             )
                                         )

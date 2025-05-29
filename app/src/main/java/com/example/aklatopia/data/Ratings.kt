@@ -13,12 +13,14 @@ data class Rating(
     val id: String? = null,
     val rating: Int = 0,
     val bookId: Int = 0,
+    val category: String = "",
     val userId: String = ""
 ){
     fun toJSON(): Map<String, Any?> =
         mapOf(
             "rating" to rating,
             "bookId" to bookId,
+            "category" to category,
             "userId" to userId
         )
 }

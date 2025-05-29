@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.aklatopia.OnlineImage
@@ -40,6 +41,7 @@ import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
 import com.example.aklatopia.WindowInfo
 import com.example.aklatopia.assets.LabeledHeaderWithBackBtn
+import com.example.aklatopia.data.FirebaseRatingsVM
 import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.rememberWindowInfo
 import com.example.aklatopia.ui.theme.Beige
@@ -51,9 +53,11 @@ import com.example.aklatopia.ui.theme.Yellow
 @Composable
 fun ProgressScreen(
     navHostController: NavHostController,
+    RatingVM: FirebaseRatingsVM
 ){
     val windowInfo = rememberWindowInfo()
     val isScreenRotated = windowInfo.screenWidthInfo is WindowInfo.WindowType.Medium
+
     LabeledHeaderWithBackBtn(
         navHostController,
         label = "Progress"
@@ -73,9 +77,18 @@ fun ProgressScreen(
                 Line()
             }
             items(BookCategory.allCategories){ bookCategory->
+                val countInCategory = RatingVM.ratings.count {
+                    it.userId == SupabaseUser.userState.value.userId &&
+                            it.category == bookCategory.displayName
+                }
+
+                val progressPercent = if (bookCategory.totalBooks > 0) {
+                    (countInCategory * 100) / bookCategory.totalBooks
+                } else 0
+
                 ProgressBar(
                     category = bookCategory.displayName,
-                    progress = bookCategory.progress
+                    progress = progressPercent
                 )
             }
 
@@ -193,7 +206,12 @@ fun ProgressBar(
                 Box(
                     modifier = Modifier
                         .padding(20.dp)
-                        .fillMaxWidth(progress.toFloat() / 100)
+                        .fillMaxWidth(
+                            progress.toFloat()
+                                .div(100f)
+                                .coerceAtLeast(0.05f)
+                                .coerceAtMost(1f)
+                        )
                         .height(20.dp)
                         .clip(RoundedCornerShape(10.dp))
                         .background(Green)

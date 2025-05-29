@@ -5,14 +5,14 @@ import kotlinx.serialization.Serializable
 import kotlin.collections.List
 
 @Serializable
-data class BookCategory(val displayName: String, val progress: Int) {
+data class BookCategory(val displayName: String, val totalBooks: Int) {
     companion object {
-        val CULTURES_AND_TRADITIONS = BookCategory("Cultures and Traditions", 5)
-        val EDUCATIONAL_LEARNING = BookCategory("Educational Learning", 10)
-        val POETRY_AND_RHYMES = BookCategory("Poetry and Rhymes", 0)
-        val SCIENCE_FICTION = BookCategory("Science Fiction", 8)
-        val FABLES = BookCategory("Fables", 5)
-        val FOLKLORE = BookCategory("Folklore/Tales", 10)
+        val CULTURES_AND_TRADITIONS = BookCategory("Cultures and Traditions", 14)
+        val EDUCATIONAL_LEARNING = BookCategory("Educational Learning", 12)
+        val POETRY_AND_RHYMES = BookCategory("Poetry and Rhymes", 15)
+        val SCIENCE_FICTION = BookCategory("Science Fiction", 5)
+        val FABLES = BookCategory("Fables", 9)
+        val FOLKLORE = BookCategory("Folklore/Tales", 20)
 
         val allCategories = listOf(
             CULTURES_AND_TRADITIONS,

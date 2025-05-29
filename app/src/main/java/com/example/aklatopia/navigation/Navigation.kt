@@ -88,10 +88,10 @@ fun MainAppScreen(start: String) {
             composable("home") { Home(navController) }
             composable("list") { ListScreen(navController) }
             composable("favorites") { FavoritesScreen(navController, FavoritesVM()) }
-            composable("profile") { ProfileScreen(navController) }
+            composable("profile") { ProfileScreen(navController, FirebaseRatingsVM())}
 
             composable("search") { Search(navController) }
-            composable("progress") { ProgressScreen(navController) }
+            composable("progress") { ProgressScreen(navController, FirebaseRatingsVM()) }
 
             composable("addToList/{listId}") { backStackEntry ->
                 val listId = backStackEntry.arguments?.getString("listId")
