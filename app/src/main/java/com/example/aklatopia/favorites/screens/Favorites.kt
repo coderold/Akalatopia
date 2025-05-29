@@ -28,11 +28,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.assets.ImageCard
 import com.example.aklatopia.WindowInfo
-import com.example.aklatopia.data.favorites
 import com.example.aklatopia.assets.LabeledHeader
 import com.example.aklatopia.assets.SupabaseImageCard
 import com.example.aklatopia.data.FavoritesVM
-import com.example.aklatopia.data.books
 import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.list.components.ListBookCard
 import com.example.aklatopia.rememberWindowInfo
@@ -85,7 +83,7 @@ fun FavoritesScreen(
                 if (isScreenRotated){
                     items(favoriteBooks){ book->
                         ListBookCard(
-                            book.title,
+                            book.id,
                             label = "Remove From Favorites",
                             navHostController,
                             onClick = {

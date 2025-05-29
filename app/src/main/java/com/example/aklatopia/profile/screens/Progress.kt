@@ -33,12 +33,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.aklatopia.OnlineImage
 import com.example.aklatopia.data.BookCategory
 import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
 import com.example.aklatopia.WindowInfo
 import com.example.aklatopia.assets.LabeledHeaderWithBackBtn
+import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.rememberWindowInfo
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
@@ -63,9 +65,9 @@ fun ProgressScreen(
         ) {
             stickyHeader {
                 ProfileCard(
-                    profilePic = R.drawable.user_profile_pic,
-                    name = "Matthew Molina",
-                    userName = "@pusangpagod",
+                    profilePic = SupabaseUser.userState.value.avatar,
+                    name = SupabaseUser.userState.value.name,
+                    userName = "@" + SupabaseUser.userState.value.userName,
                     isScreenRotated = isScreenRotated
                 )
                 Line()
@@ -83,7 +85,7 @@ fun ProgressScreen(
 
 @Composable
 fun ProfileCard(
-    profilePic: Int,
+    profilePic: String,
     name: String,
     userName: String,
     isScreenRotated: Boolean
@@ -105,8 +107,8 @@ fun ProfileCard(
                     .align(Alignment.CenterVertically)
                     .size(if (isScreenRotated) 40.dp else 60.dp)
             ) {
-                Image(
-                    painter = painterResource(id = profilePic),
+                OnlineImage(
+                    imageUrl = profilePic,
                     contentDescription = "profile pic",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -202,11 +204,4 @@ fun ProgressBar(
 
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ProgPrev(){
-    val nav = rememberNavController()
-    ProgressScreen(nav)
 }

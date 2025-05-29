@@ -1,5 +1,6 @@
 package com.example.aklatopia.home.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,7 +25,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,10 +40,17 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.aklatopia.OnlineImage
 import com.example.aklatopia.R
-import com.example.aklatopia.data.books
+import com.example.aklatopia.SupabaseClient
+import com.example.aklatopia.data.SupabaseUser
+import com.example.aklatopia.data.User
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
+import io.github.jan.supabase.gotrue.auth
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun HomeBookCard(
@@ -49,7 +59,17 @@ fun HomeBookCard(
     navHostController: NavHostController,
     onClick: () -> Unit
 ){
-    val book = books[books.indexOfFirst { it.title == title }]
+
+    val SupabaseBooks = remember { mutableStateListOf<Bookz>() }
+
+    LaunchedEffect(Unit){
+        withContext(Dispatchers.IO){
+            val result = SupabaseClient.client.from("Books").select().decodeList<Bookz>()
+            SupabaseBooks.addAll(result)
+        }
+    }
+//    val book = books[books.indexOfFirst { it.title == title }]
+    val book = SupabaseBooks[SupabaseBooks.indexOfFirst { it.title == title }]
     var expanded by remember { mutableStateOf(false) }
     Card (
         modifier = Modifier
@@ -65,8 +85,8 @@ fun HomeBookCard(
                 .background(MaterialTheme.colorScheme.surfaceVariant)
         ){
             Row{
-                Image(
-                    painter = painterResource(id = book.cover),
+                OnlineImage(
+                    imageUrl = book.cover,
                     contentDescription = book.desc,
                     modifier = Modifier
                         .clip(RoundedCornerShape(10.dp))

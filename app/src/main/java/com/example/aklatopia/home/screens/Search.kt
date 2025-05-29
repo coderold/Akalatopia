@@ -77,7 +77,6 @@ import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
 import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.WindowInfo
-import com.example.aklatopia.data.books
 import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.home.components.SearchBookCard
 import com.example.aklatopia.rememberWindowInfo
@@ -262,24 +261,24 @@ fun CustomShapeSearchBar(
     }
 }
 
-@Composable
-fun SearchBookGrid(navHostController: NavHostController, title: String){
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ){
-        val filteredBooks = books.filter { it.title.contains(title, ignoreCase = true) }
-        items(filteredBooks){ book->
-            ImageCard(
-                pic = book.cover,
-                desc = book.desc,
-                title = book.title,
-                navHostController = navHostController
-            )
-        }
-    }
-}
+//@Composable
+//fun SearchBookGrid(navHostController: NavHostController, title: String){
+//    LazyVerticalGrid(
+//        columns = GridCells.Fixed(2),
+//        verticalArrangement = Arrangement.spacedBy(10.dp),
+//        horizontalArrangement = Arrangement.SpaceEvenly
+//    ){
+//        val filteredBooks = books.filter { it.title.contains(title, ignoreCase = true) }
+//        items(filteredBooks){ book->
+//            ImageCard(
+//                pic = book.cover,
+//                desc = book.desc,
+//                title = book.title,
+//                navHostController = navHostController
+//            )
+//        }
+//    }
+//}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

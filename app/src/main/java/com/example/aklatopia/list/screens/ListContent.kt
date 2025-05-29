@@ -28,16 +28,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.WindowInfo
 import com.example.aklatopia.data.BooklistVM
 import com.example.aklatopia.data.ListVM
-import com.example.aklatopia.data.books
+import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.list.components.ListBookCard
 import com.example.aklatopia.list.components.ListContentHeader
 import com.example.aklatopia.rememberWindowInfo
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
 import com.example.aklatopia.ui.theme.Green
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun ListContentScreen(
@@ -73,6 +77,15 @@ fun ListContent(
     booksId: SnapshotStateList<Int>,
     paddingValues: PaddingValues
 ){
+
+    val SupabaseBooks = remember { mutableStateListOf<Bookz>() }
+
+    LaunchedEffect(Unit){
+        withContext(Dispatchers.IO){
+            val result = SupabaseClient.client.from("Books").select().decodeList<Bookz>()
+            SupabaseBooks.addAll(result)
+        }
+    }
     val windowInfo = rememberWindowInfo()
     val isScreenRotated = windowInfo.screenWidthInfo is WindowInfo.WindowType.Medium
 
@@ -106,12 +119,12 @@ fun ListContent(
                 .padding(padding)
         ){
 
-            val booksInList = books.filter { it.id in booksId }
+            val booksInList = SupabaseBooks.filter { it.id in booksId }
 
             if (booksInList.isNotEmpty()) {
                 items(booksInList) { book ->
                     ListBookCard(
-                        book.title,
+                        book.id,
                         label = "Remove From List",
                         navHostController,
                         onClick = {

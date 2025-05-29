@@ -52,7 +52,6 @@ import com.example.aklatopia.WindowInfo
 import com.example.aklatopia.assets.SupabaseImageCard
 import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.data.User
-import com.example.aklatopia.data.books
 import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.home.components.HomeBookCard
 import com.example.aklatopia.rememberWindowInfo
@@ -134,7 +133,7 @@ fun Home(navHostController: NavHostController){
         ) {
             if (isScreenRotated){
                 LazyColumn{
-                    items(books){ book->
+                    items(SupabaseBooks){ book->
                         HomeBookCard(
                             book.title,
                             label = "Add to List",
@@ -208,31 +207,31 @@ fun SearchBarBtn(navHostController: NavHostController, modifier: Modifier, isScr
     }
 }
 
-@Composable
-fun BookGrid(navHostController: NavHostController){
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ){
-        items(books){ book->
-            ImageCard(
-                pic = book.cover,
-                desc = book.desc,
-                title = book.title,
-                navHostController = navHostController
-            )
-        }
-    }
-}
+//@Composable
+//fun BookGrid(navHostController: NavHostController){
+//    LazyVerticalGrid(
+//        columns = GridCells.Fixed(2),
+//        verticalArrangement = Arrangement.spacedBy(10.dp),
+//        horizontalArrangement = Arrangement.SpaceEvenly
+//    ){
+//        items(books){ book->
+//            ImageCard(
+//                pic = book.cover,
+//                desc = book.desc,
+//                title = book.title,
+//                navHostController = navHostController
+//            )
+//        }
+//    }
+//}
 
 
 
-@Preview(showBackground = true)
-@Composable
-fun HomePrev(){
-    val navHostController = rememberNavController()
-    Home(navHostController)
-    val book = books[0]
-    //Reviews(book.review)
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun HomePrev(){
+//    val navHostController = rememberNavController()
+//    Home(navHostController)
+//    val book = books[0]
+//    //Reviews(book.review)
+//}

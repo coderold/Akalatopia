@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.aklatopia.OnlineImage
 import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
@@ -66,7 +67,6 @@ import com.example.aklatopia.data.FirebaseReviewVM
 import com.example.aklatopia.data.Rating
 import com.example.aklatopia.data.Review
 import com.example.aklatopia.data.SupabaseUser
-import com.example.aklatopia.data.books
 import com.example.aklatopia.home.components.AddToFavoritesBtn
 import com.example.aklatopia.home.components.AskForReview
 import com.example.aklatopia.home.components.BookVM
@@ -107,7 +107,7 @@ fun DetailScreen(
 
     val SupabaseBooks = remember { mutableStateListOf<Bookz>() }
 
-    val book = books[books.indexOfFirst { it.title == title }]
+    val book = SupabaseBooks[SupabaseBooks.indexOfFirst { it.title == title }]
 
     val favoritesId = remember { mutableStateListOf<Int>() }
 
@@ -168,8 +168,8 @@ fun DetailScreen(
                                 shape = RoundedCornerShape(20.dp),
                                 elevation = CardDefaults.cardElevation(5.dp)
                             ) {
-                                Image(
-                                    painter = painterResource(id = book.cover),
+                                OnlineImage(
+                                    imageUrl = book.cover,
                                     contentDescription = book.desc,
                                     contentScale = ContentScale.Fit,
                                     modifier = Modifier

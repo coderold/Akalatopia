@@ -31,7 +31,6 @@ import com.example.aklatopia.R
 import com.example.aklatopia.data.Favorite
 import com.example.aklatopia.data.FavoritesVM
 import com.example.aklatopia.data.SupabaseUser
-import com.example.aklatopia.data.books
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
 import com.example.aklatopia.ui.theme.Red

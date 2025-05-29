@@ -66,7 +66,6 @@ import com.example.aklatopia.data.FirebaseReviewVM
 import com.example.aklatopia.data.Rating
 import com.example.aklatopia.data.Review
 import com.example.aklatopia.data.SupabaseUser
-import com.example.aklatopia.data.books
 import com.example.aklatopia.home.components.AddToFavoritesBtn
 import com.example.aklatopia.home.components.AskForReview
 import com.example.aklatopia.home.components.BookVM

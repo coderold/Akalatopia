@@ -1,5 +1,6 @@
 package com.example.aklatopia.list.screens
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -65,7 +66,6 @@ import com.example.aklatopia.data.Booklist
 import com.example.aklatopia.data.BooklistVM
 import com.example.aklatopia.data.ListVM
 import com.example.aklatopia.data.SupabaseUser
-import com.example.aklatopia.data.books
 import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.home.screens.CategoriesRow
 import com.example.aklatopia.home.screens.CustomShapeSearchBar
@@ -214,14 +214,25 @@ fun AddToListFilteredCard(
         }
     }
 
-    val filteredBooks by remember(title, selectedCategory) {
+//    val filteredBooks by remember(title, selectedCategory) {
+//        derivedStateOf {
+//            SupabaseBooks.filter { book ->
+//                book.title.contains(title, ignoreCase = true) &&
+//                        (selectedCategory == null || book.category == selectedCategory.displayName)
+//            }
+//        }
+//    }
+    val filteredBooks by remember(title, selectedCategory, booksId) {
         derivedStateOf {
             SupabaseBooks.filter { book ->
                 book.title.contains(title, ignoreCase = true) &&
-                        (selectedCategory == null || book.category == selectedCategory.displayName)
+                        (selectedCategory == null || book.category == selectedCategory.displayName) &&
+                        (book.id !in booksId)
             }
         }
     }
+
+    Log.d("Book list", booksId.toList().toString())
 
     LazyColumn(
         modifier = Modifier

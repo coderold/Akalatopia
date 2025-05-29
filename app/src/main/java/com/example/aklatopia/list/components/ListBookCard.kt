@@ -23,7 +23,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,28 +38,46 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.aklatopia.OnlineImage
 import com.example.aklatopia.R
-import com.example.aklatopia.data.books
+import com.example.aklatopia.SupabaseClient
+import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
 import com.example.aklatopia.ui.theme.OffWhite
 import com.example.aklatopia.ui.theme.Yellow
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun ListBookCard(
-    title: String,
+    bookId: Int,
     label: String,
     navHostController: NavHostController,
     onClick: () -> Unit
 ){
-    val book = books[books.indexOfFirst { it.title == title }]
+    val SupabaseBooks = remember { mutableStateListOf<Bookz>() }
+    LaunchedEffect(Unit){
+        withContext(Dispatchers.IO){
+            val result = SupabaseClient.client.from("Books").select().decodeList<Bookz>()
+            SupabaseBooks.addAll(result)
+        }
+    }
+
+    val book = SupabaseBooks.find { it.id == bookId }
+
     var expanded by remember { mutableStateOf(false) }
     Card (
         modifier = Modifier
             .padding(10.dp)
             .fillMaxWidth()
             .height(120.dp)
-            .clickable { navHostController.navigate("detail/$title") },
+            .clickable {
+                if (book != null) {
+                    navHostController.navigate("onlineDetail/${book.id}")
+                }
+            },
         elevation = CardDefaults.cardElevation(5.dp)
     ) {
         Box(
@@ -66,9 +86,9 @@ fun ListBookCard(
                 .background(Yellow)
         ){
             Row{
-                Image(
-                    painter = painterResource(id = book.cover),
-                    contentDescription = book.desc,
+                OnlineImage(
+                    imageUrl = book?.cover ?: "Not Found",
+                    contentDescription = book?.desc ?: "Not Found",
                     modifier = Modifier
                         .clip(RoundedCornerShape(10.dp))
                         .background(OffWhite)
@@ -77,7 +97,7 @@ fun ListBookCard(
                         .requiredWidth(100.dp)
                 )
                 Text(
-                    text = book.title,
+                    text = book?.title ?: "Not Found",
                     color = DarkBlue,
                     fontFamily = FontFamily(Font(R.font.poppins_semibold)),
                     fontSize = 20.sp,
