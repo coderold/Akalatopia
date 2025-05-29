@@ -54,6 +54,7 @@ import com.example.aklatopia.OnlineImage
 import com.example.aklatopia.R
 import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.WindowInfo
+import com.example.aklatopia.assets.ConfirmDialog
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.data.User
@@ -63,8 +64,9 @@ import com.example.aklatopia.ui.theme.DarkBlue
 import com.example.aklatopia.ui.theme.Green
 import com.example.aklatopia.ui.theme.OffWhite
 import com.example.aklatopia.ui.theme.Red
+import com.example.aklatopia.uploadImageToImgbb
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.jsonPrimitive
 import java.util.UUID
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -92,6 +94,8 @@ fun EditProfileDialog(
     ) { uri: Uri? ->
         imageUri.value = uri
     }
+
+    var showConfirmEditDialog by remember { mutableStateOf(false) }
 
     Surface(
         shape = RoundedCornerShape(24.dp),
@@ -302,28 +306,18 @@ fun EditProfileDialog(
 
                             coroutineScope.launch {
                                 imageUri.value?.let {
-                                    SupabaseClient.uploadAvatar(
-                                        context = context,
-                                        uri = it,
-                                        path = "users/${UUID.randomUUID()}.jpg"
-                                    )
+                                    uploadImageToImgbb(context, it,
+                                        onSuccess = { url ->
+                                            Log.d("UPLOAD", "Image URL: $url")
+                                            userState.value.avatar = url
+                                        }
+                                    ) { err -> Log.e("UPLOAD", err) }
                                 }
-
-                                SupabaseUser.updateUser(
-                                    User(
-                                        userId = userState.value.userId,
-                                        name = userState.value.name,
-                                        userName = userState.value.userName,
-                                        bio = userState.value.bio,
-                                        avatar = userState.value.avatar
-                                    )
-                                )
                             }
 
-                            profileUri.value = imageUri.value
-
-                            onConfirm()
-                        } ,
+                            showConfirmEditDialog = true
+                        }
+                        ,
                         colors = ButtonDefaults.buttonColors(containerColor = Green),
                         shape = RoundedCornerShape(50),
                         modifier = Modifier.weight(1f).height(40.dp)
@@ -337,6 +331,45 @@ fun EditProfileDialog(
                 }
             }
         }
+    }
+
+    if (showConfirmEditDialog){
+        ConfirmDialog(
+            label = "Save Changes?",
+            onDismiss = {showConfirmEditDialog = false},
+            onConfirm = {
+                coroutineScope.launch {
+                    userState.value = userState.value.copy(
+                        name = name,
+                        userName = username,
+                        bio = bio
+                    )
+
+                    imageUri.value?.let { uri ->
+                        // Upload image
+                        uploadImageToImgbb(context, uri,
+                            onSuccess = { url ->
+                                userState.value = userState.value.copy(avatar = url)
+
+                                coroutineScope.launch {
+                                    SupabaseUser.updateUser(userState.value)
+                                    profileUri.value = uri
+                                    onConfirm()
+                                }
+                            },
+                            onError = { err ->
+                                Log.e("UPLOAD", err)
+                            }
+                        )
+                    } ?: run {
+                        SupabaseUser.updateUser(userState.value)
+                        onConfirm()
+                    }
+
+                    showConfirmEditDialog = false
+                }
+            }
+        )
     }
 }
 

@@ -76,6 +76,7 @@ object SupabaseUser {
                         set("name", user.name)
                         set("userName", user.userName)
                         set("bio", user.bio)
+                        set("avatar", user.avatar)
                     }
                 ) {
                     filter {
