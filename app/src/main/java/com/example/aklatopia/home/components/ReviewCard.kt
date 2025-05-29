@@ -1,6 +1,7 @@
 package com.example.aklatopia.home.components
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,6 +21,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -37,15 +40,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aklatopia.OnlineImage
 import com.example.aklatopia.R
+import com.example.aklatopia.assets.ConfirmDialog
 import com.example.aklatopia.data.FirebaseReviewVM
 import com.example.aklatopia.data.Review
+import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
 import com.example.aklatopia.ui.theme.Yellow
+import kotlinx.coroutines.launch
 
 @Composable
 fun ReviewCard(review: Review, viewModel: FirebaseReviewVM){
     var expanded by remember { mutableStateOf(false) }
+
+    var showDeleteReviewDialog by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier
@@ -87,43 +97,45 @@ fun ReviewCard(review: Review, viewModel: FirebaseReviewVM){
                     )
                 }
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-                    IconButton(
-                        onClick = { expanded = true },
-                        modifier = Modifier.align(Alignment.CenterEnd)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "More",
-                            tint = DarkBlue,
-                            modifier = Modifier
-                                .size(60.dp)
-                        )
-                    }
-
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
+                if (review.user.userId == SupabaseUser.userState.value.userId){
+                    Box(
                         modifier = Modifier
-                            .background(Beige)
-                            .align(Alignment.TopCenter)
+                            .fillMaxSize()
                     ) {
-                        DropdownMenuItem(
-                            text = { Text(
-                                text = "Delete Review",
-                                color = DarkBlue,
-                                fontFamily = FontFamily(Font(R.font.poppins_extrabold))
-                            ) },
-                            onClick = {
-                                expanded = false
-                                viewModel.deleteReview(review.id.toString())
-                            }
-                        )
+                        IconButton(
+                            onClick = { expanded = true },
+                            modifier = Modifier.align(Alignment.CenterEnd)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "More",
+                                tint = DarkBlue,
+                                modifier = Modifier
+                                    .size(60.dp)
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            modifier = Modifier
+                                .background(Beige)
+                                .align(Alignment.TopCenter)
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(
+                                    text = "Delete Review",
+                                    color = DarkBlue,
+                                    fontFamily = FontFamily(Font(R.font.poppins_extrabold))
+                                ) },
+                                onClick = {
+                                    showDeleteReviewDialog = true
+                                }
+                            )
+                        }
                     }
                 }
+
             }
 
             Text(
@@ -136,5 +148,19 @@ fun ReviewCard(review: Review, viewModel: FirebaseReviewVM){
             )
         }
 
+    }
+
+    if (showDeleteReviewDialog){
+        ConfirmDialog(
+            label = "Delete Review?",
+            onDismiss = {showDeleteReviewDialog = false},
+            onConfirm = {
+                expanded = false
+                viewModel.deleteReview(review.id.toString())
+                showDeleteReviewDialog = false
+
+                Toast.makeText(context, "Review Deleted", Toast.LENGTH_SHORT).show()
+            }
+        )
     }
 }

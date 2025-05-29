@@ -1,5 +1,6 @@
 package com.example.aklatopia.list.components
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,6 +42,8 @@ import androidx.navigation.NavHostController
 import com.example.aklatopia.OnlineImage
 import com.example.aklatopia.R
 import com.example.aklatopia.SupabaseClient
+import com.example.aklatopia.assets.ConfirmDialog
+import com.example.aklatopia.data.ListVM
 import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
@@ -68,6 +71,8 @@ fun ListBookCard(
     val book = SupabaseBooks.find { it.id == bookId }
 
     var expanded by remember { mutableStateOf(false) }
+    var showRemoveFromListDialog by remember { mutableStateOf(false) }
+
     Card (
         modifier = Modifier
             .padding(10.dp)
@@ -137,8 +142,7 @@ fun ListBookCard(
                                 fontFamily = FontFamily(Font(R.font.poppins_extrabold))
                             ) },
                             onClick = {
-                                expanded = false
-                                onClick()
+                                showRemoveFromListDialog = true
                             }
                         )
                     }
@@ -146,5 +150,17 @@ fun ListBookCard(
             }
         }
 
+    }
+
+    if (showRemoveFromListDialog){
+        ConfirmDialog(
+            label = "Remove from List?",
+            onDismiss = {showRemoveFromListDialog = false},
+            onConfirm = {
+                expanded = false
+                onClick()
+                showRemoveFromListDialog = false
+            }
+        )
     }
 }

@@ -1,5 +1,6 @@
 package com.example.aklatopia.list.components
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -50,6 +52,7 @@ fun ListHeader(
     var showAddList by remember{ mutableStateOf(false) }
     val windowInfo = rememberWindowInfo()
     val isScreenRotated = windowInfo.screenWidthInfo is WindowInfo.WindowType.Medium
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -143,12 +146,18 @@ fun ListHeader(
                 onListNameChange = { listName = it},
                 listName = listName,
                 onConfirm = {
-                    ListVM().createList(
-                        List(
-                            user = SupabaseUser.userState.value,
-                            name = listName,
+                    if (listName.isNotEmpty()){
+                        ListVM().createList(
+                            List(
+                                user = SupabaseUser.userState.value,
+                                name = listName,
+                            )
                         )
-                    )
+                        Toast.makeText(context, "List Created!", Toast.LENGTH_SHORT).show()
+
+                    }else{
+                        Toast.makeText(context, "Empty Field", Toast.LENGTH_SHORT).show()
+                    }
                     showAddList = false
                 }
             )

@@ -35,6 +35,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
+import com.example.aklatopia.assets.ConfirmDialog
 import com.example.aklatopia.data.ListVM
 import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.list.components.AddListDialog
@@ -108,6 +109,9 @@ fun ListCard(
     var expanded by remember { mutableStateOf(false) }
     var showEditList by remember{ mutableStateOf(false) }
     var showDeleteList by remember{ mutableStateOf(false) }
+    var showConfirmDeleteList by remember{ mutableStateOf(false) }
+    var showConfirmEditList by remember{ mutableStateOf(false) }
+    var newListName by remember { mutableStateOf(listName) }
     val context = LocalContext.current
 
     Card(
@@ -184,20 +188,15 @@ fun ListCard(
 
     if (showEditList){
         Dialog(onDismissRequest = {showEditList = false}){
-            var listName by remember { mutableStateOf(listName) }
             EditListDialog(
                 onDismiss = {showEditList = false},
-                onListNameChange = { listName = it},
-                listName = listName,
+                onListNameChange = { newListName = it},
+                listName = newListName,
                 onConfirm = {
-
                     if (listName.isNotEmpty()){
-                        ListVM().updateList(
-                            id = id,
-                            newName = listName,
-                        )
-                        showEditList = false
-                        Toast.makeText(context,"List name changed to $listName", Toast.LENGTH_SHORT).show()
+
+                        showConfirmEditList = true
+
                     }else{
                         Toast.makeText(context,"Empty Field", Toast.LENGTH_SHORT).show()
                     }
@@ -207,14 +206,29 @@ fun ListCard(
         }
     }
 
+    if (showConfirmEditList){
+        ConfirmDialog(
+            label = "Save Changes?",
+            onDismiss = {showConfirmEditList = false},
+            onConfirm = {
+                ListVM().updateList(
+                    id = id,
+                    newName = newListName,
+                )
+                showEditList = false
+                Toast.makeText(context,"List name changed to $newListName", Toast.LENGTH_SHORT).show()
+
+                showConfirmEditList = false
+            }
+        )
+    }
+
     if (showDeleteList){
         Dialog(onDismissRequest = {showDeleteList = false}){
             ConfirmListDeleteDialog(
                 onDismiss = {showDeleteList = false},
                 onConfirm = {
-                    ListVM().deleteList(
-                        id = id
-                    )
+                    ListVM().deleteList(id = id)
                     showDeleteList = false
                 },
                 listName = listName
