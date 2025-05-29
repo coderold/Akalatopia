@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.aklatopia.R
+import com.example.aklatopia.assets.ConfirmDialog
 import com.example.aklatopia.ui.theme.Beige
 import com.example.aklatopia.ui.theme.DarkBlue
 import com.example.aklatopia.ui.theme.Green
@@ -38,6 +39,7 @@ fun RateDialog(
     onRate: (Int) -> Unit
 ) {
     var rating by remember { mutableStateOf(0) }
+    var showConfirmRating by remember{ mutableStateOf(false) }
 
     Surface(
         shape = RoundedCornerShape(24.dp),
@@ -53,6 +55,12 @@ fun RateDialog(
                 text = "Rate This Book!",
                 fontFamily = FontFamily(Font(R.font.poppins_extrabold)),
                 fontSize = 20.sp,
+                color = DarkBlue,
+            )
+            Text(
+                text = "(You can only Rate a Book Once!)",
+                fontFamily = FontFamily(Font(R.font.poppins_semibold)),
+                fontSize = 12.sp,
                 color = DarkBlue,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -96,7 +104,7 @@ fun RateDialog(
                 Spacer(modifier = Modifier.width(12.dp))
 
                 Button(
-                    onClick = { onRate(rating) },
+                    onClick = { showConfirmRating = true },
                     colors = ButtonDefaults.buttonColors(containerColor = Green),
                     shape = RoundedCornerShape(50),
                     modifier = Modifier.weight(1f).height(40.dp)
@@ -109,5 +117,16 @@ fun RateDialog(
                 }
             }
         }
+    }
+
+    if (showConfirmRating){
+        ConfirmDialog(
+            label = "Rate this Book?",
+            onDismiss = {showConfirmRating = false},
+            onConfirm = {
+                onRate(rating)
+                showConfirmRating = false
+            }
+        )
     }
 }

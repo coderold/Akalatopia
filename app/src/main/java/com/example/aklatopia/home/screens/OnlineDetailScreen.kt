@@ -71,6 +71,7 @@ import com.example.aklatopia.home.components.AskForReview
 import com.example.aklatopia.home.components.BookVM
 import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.home.components.DetailHeader
+import com.example.aklatopia.home.components.RateButton
 import com.example.aklatopia.home.components.RateDialog
 import com.example.aklatopia.home.components.RatingsDisplay
 import com.example.aklatopia.home.components.ReviewCard
@@ -121,6 +122,8 @@ fun OnlineDetailScreen(
     }
 
     val isFavoriteBook = favoritesId.contains(id)
+    val isBookRated = RatingVM.ratings.any { it.userId == SupabaseUser.userState.value.userId && it.bookId == id }
+
 
     Scaffold(
         snackbarHost = {
@@ -227,37 +230,20 @@ fun OnlineDetailScreen(
                                 isFavoriteBook = isFavoriteBook
                             )
 
-                            Button(
-                                onClick = {showRateDialog = true},
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(190.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = DarkBlue
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Star,
-                                    contentDescription = null,
-                                    tint = Yellow,
-                                    modifier = Modifier
-                                        .size(22.dp)
-                                )
-                                Text(
-                                    text = "Rate this Book",
-                                    fontFamily = FontFamily(Font(R.font.poppins_extrabold)),
-                                    color = Beige,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier
-                                        .padding(start = 5.dp)
-                                )
-                            }
+                            RateButton(
+                                isBookRated = isBookRated,
+                                onClick = {showRateDialog = true}
+                            )
                         }
                         if (showRateDialog) {
                             Dialog(onDismissRequest = { showRateDialog = false }) {
                                 RateDialog(
                                     onDismiss = { showRateDialog = false },
                                     onRate = { selectedStars ->
+                                        val isBookReviewed = ReviewVM.reviews.any {
+                                            it.user.userId == SupabaseUser.userState.value.userId && it.bookId == id
+                                        }
+
                                         RatingVM.uploadRating(
                                             Rating(
                                                 rating = selectedStars,
@@ -266,7 +252,11 @@ fun OnlineDetailScreen(
                                             )
                                         )
                                         showRateDialog = false
-                                        showAskDialog = true
+
+                                        if(!isBookReviewed){
+                                            showAskDialog = true
+                                        }
+
                                     }
                                 )
                             }

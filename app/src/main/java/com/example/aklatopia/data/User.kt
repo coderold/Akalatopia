@@ -26,12 +26,12 @@ data class User(
 object SupabaseUser {
     val userState = mutableStateOf(User())
 
-    private suspend fun fetchUsers(): List<User> {
-        return SupabaseClient.client
-            .from("Users")
-            .select()
-            .decodeList<User>()
-    }
+//    private suspend fun fetchUsers(): List<User> {
+//        return SupabaseClient.client
+//            .from("Users")
+//            .select()
+//            .decodeList<User>()
+//    }
 
     suspend fun refreshUser() {
         val supabaseUser = SupabaseClient.client.auth.currentUserOrNull()

@@ -109,7 +109,6 @@ fun ListCard(
     var expanded by remember { mutableStateOf(false) }
     var showEditList by remember{ mutableStateOf(false) }
     var showDeleteList by remember{ mutableStateOf(false) }
-    var showConfirmDeleteList by remember{ mutableStateOf(false) }
     var showConfirmEditList by remember{ mutableStateOf(false) }
     var newListName by remember { mutableStateOf(listName) }
     val context = LocalContext.current
