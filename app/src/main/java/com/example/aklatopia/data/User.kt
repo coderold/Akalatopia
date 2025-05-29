@@ -38,11 +38,7 @@ object SupabaseUser {
 
         if (supabaseUser != null) {
             userState.value = User(
-                userId = supabaseUser.id,
-                name = supabaseUser.userMetadata?.get("name")?.jsonPrimitive?.content ?: "",
-                userName = "aa",
-                bio = "ss",
-                avatar = supabaseUser.userMetadata?.get("avatar_url")?.jsonPrimitive?.content ?: ""
+                userId = supabaseUser.id
             )
         } else {
             userState.value = User()
@@ -51,17 +47,19 @@ object SupabaseUser {
 
     suspend fun verifyUserIdInListAndInsertIfMissing(existingUserIds: List<String>) {
         val supabaseUser = SupabaseClient.client.auth.currentUserOrNull() ?: return
-
-        Log.d("DEBUG", "Supabase user ID: ${supabaseUser.id}")
-        Log.d("DEBUG", "Does current user exist in table: ${!existingUserIds.contains(supabaseUser.id)}")
+        val fullName = supabaseUser.userMetadata?.get("name")?.jsonPrimitive?.content ?: ""
+        val firstName = fullName.split(" ").firstOrNull()?.lowercase() ?: "user"
+        val randomNum = (100..999).random()
+        val generatedUserName = "$firstName$randomNum"
 
         if (!existingUserIds.contains(supabaseUser.id)) {
             val newUser = User(
                 userId = supabaseUser.id,
-                name = supabaseUser.userMetadata?.get("name")?.jsonPrimitive?.content ?: "",
-                userName = "aa",
-                bio = "ss",
-                avatar = supabaseUser.userMetadata?.get("avatar_url")?.jsonPrimitive?.content ?: ""
+                name = fullName,
+                userName = generatedUserName,
+                bio = "Add A Bio",
+                avatar = supabaseUser.userMetadata?.get("avatar_url")?.jsonPrimitive?.content ?:
+                "https://dfopdqypqyqnrgpbjkpq.supabase.co/storage/v1/object/public/users-avatar//user1_profile.jpg"
             )
             SupabaseClient.newUser(newUser)
         }

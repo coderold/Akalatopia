@@ -85,7 +85,7 @@ fun GoogleSignInButton(navHostController: NavHostController) {
                 }
 
                 Toast.makeText(context, "Logging In", Toast.LENGTH_SHORT).show()
-                navHostController.navigate("profile")
+                navHostController.navigate("main")
                 SupabaseUser.refreshUser()
 
 

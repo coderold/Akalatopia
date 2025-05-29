@@ -34,14 +34,17 @@ object SupabaseClient {
         client.auth.signOut();
     }
 
-    suspend fun signUpNewUser(email: String, password: String) {
-        try {
+    suspend fun signUpNewUser(email: String, password: String) : Boolean{
+        return try {
             client.auth.signUpWith(Email) {
                 this.email = email
                 this.password = password
             }
+            true
+
         } catch (e: Exception) {
             Log.e("Signup", "Error: ${e.message}")
+            false
         }
     }
 

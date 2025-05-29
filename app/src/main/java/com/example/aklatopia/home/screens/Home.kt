@@ -72,6 +72,7 @@ fun Home(navHostController: NavHostController){
     LaunchedEffect(Unit){
         withContext(Dispatchers.IO){
             val currentId = SupabaseClient.client.auth.currentUserOrNull()?.id
+
             val result = SupabaseClient.client.from("Books").select().decodeList<Bookz>()
             SupabaseBooks.addAll(result)
 

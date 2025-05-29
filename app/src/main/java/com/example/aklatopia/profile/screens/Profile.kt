@@ -78,10 +78,7 @@ fun ProfileScreen(
 
     val scrollState = rememberScrollState()
 
-    val progress = RatingVM.ratings.size
-//    BookCategory.allCategories.forEach{ bookCategory->
-//        progress += bookCategory.
-//    }
+    val progress = RatingVM.ratings.count { it.userId == userState.value.userId }
 
     val imageUri = remember { mutableStateOf<Uri?>(null) }
 

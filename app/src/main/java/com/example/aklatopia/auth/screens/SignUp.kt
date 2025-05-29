@@ -28,6 +28,7 @@ import com.example.aklatopia.auth.components.InfoFields
 import com.example.aklatopia.auth.components.PasswordFields
 import com.example.aklatopia.auth.components.RoutedButton
 import com.example.aklatopia.auth.components.StyledTextField
+import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.data.User
 import com.example.aklatopia.ui.theme.*
 import io.github.jan.supabase.gotrue.auth
@@ -189,11 +190,30 @@ fun SignUp(navHostController: NavHostController){
                                 }
                                 else -> {
                                     coroutineScope.launch{
-                                        SupabaseClient.signUpNewUser(email,pass)
+                                        val success = SupabaseClient.signUpNewUser(email,pass)
+
+                                        if(success){
+                                            Toast.makeText(context, "Signing Up", Toast.LENGTH_SHORT).show()
+                                            SupabaseUser.refreshUser()
+                                            delay(1000)
+                                            SupabaseClient.newUser(
+                                                User(
+                                                    userId = SupabaseUser.userState.value.userId,
+                                                    userName = user,
+                                                    name = name,
+                                                    bio = "Add A Bio",
+                                                    avatar = "https://dfopdqypqyqnrgpbjkpq.supabase.co/storage/v1/object/public/users-avatar//user1_profile.jpg"
+                                                )
+                                            )
+                                            delay(1000)
+                                            Toast.makeText(context, "Account Created!", Toast.LENGTH_SHORT).show()
+                                            navHostController.navigate("main")
+                                        }else{
+                                            Toast.makeText(context, "Account Created!", Toast.LENGTH_SHORT).show()
+                                        }
+
                                     }
 
-                                    Toast.makeText(context, "Account Created!", Toast.LENGTH_SHORT).show()
-                                    navHostController.navigate("main")
                                 }
                             }
                         },
