@@ -1,6 +1,8 @@
 package com.example.aklatopia.home.screens
 
+import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -53,14 +55,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.aklatopia.FBFavBooks.favoritesLoaded
 import com.example.aklatopia.OnlineImage
 import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.Line
 import com.example.aklatopia.R
 import com.example.aklatopia.SupabaseClient
-import com.example.aklatopia.data.Favorite
 import com.example.aklatopia.data.FavoritesVM
 import com.example.aklatopia.data.FirebaseRatingsVM
 import com.example.aklatopia.data.FirebaseReviewVM
@@ -72,6 +73,8 @@ import com.example.aklatopia.home.components.AskForReview
 import com.example.aklatopia.home.components.BookVM
 import com.example.aklatopia.home.components.Bookz
 import com.example.aklatopia.home.components.DetailHeader
+import com.example.aklatopia.home.components.HAHAToFavoritesBtn
+import com.example.aklatopia.home.components.RateButton
 import com.example.aklatopia.home.components.RateDialog
 import com.example.aklatopia.home.components.RatingsDisplay
 import com.example.aklatopia.home.components.ReviewCard
@@ -84,39 +87,30 @@ import com.example.aklatopia.ui.theme.Red
 import com.example.aklatopia.ui.theme.Yellow
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DetailScreen(
+fun FavoritesDetailScreen(
     navHostController: NavHostController,
-    title: String,
+    id: Int,
     ReviewVM: FirebaseReviewVM,
     RatingVM: FirebaseRatingsVM,
     favoritesVM: FavoritesVM
 ) {
-    val currentDate = LocalDate.now()
-    val formattedDate = currentDate.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"))
-
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
     val SupabaseBooks = remember { mutableStateListOf<Bookz>() }
 
-    val book = SupabaseBooks[SupabaseBooks.indexOfFirst { it.title == title }]
-
-    val favoritesId = remember { mutableStateListOf<Int>() }
-
-    LaunchedEffect(favoritesVM.favorites) {
-        favoritesId.clear()
-        favoritesId.addAll(favoritesVM.favorites.map { it.bookId })
-    }
-
-    val isFavoriteBook = favoritesId.contains(book.id)
+    val currentDate = LocalDate.now()
+    val formattedDate = currentDate.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"))
 
     LaunchedEffect(Unit){
         withContext(Dispatchers.IO){
@@ -124,6 +118,12 @@ fun DetailScreen(
             SupabaseBooks.addAll(result)
         }
     }
+
+
+    val isFavoriteBook = remember { mutableStateOf(true) }
+
+    val isBookRated = RatingVM.ratings.any { it.userId == SupabaseUser.userState.value.userId && it.bookId == id }
+
 
     Scaffold(
         snackbarHost = {
@@ -152,7 +152,18 @@ fun DetailScreen(
                         .padding(headerPadding),
                     horizontalAlignment = Alignment.Start,
                 ) {
-                    //eto pala
+
+                    //filtered
+                    val book = SupabaseBooks.find { it.id == id }
+
+                    if (book == null) {
+                        item {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator(color = DarkBlue)
+                            }
+                        }
+                        return@LazyColumn
+                    }
 
                     item {
 
@@ -180,7 +191,7 @@ fun DetailScreen(
                             }
                         }
                         Text(
-                            text = title,
+                            text = book.title,
                             fontFamily = FontFamily(Font(R.font.poppins_extrabold)),
                             color = DarkBlue,
                             fontSize = 36.sp,
@@ -209,58 +220,50 @@ fun DetailScreen(
                                 .padding(vertical = 10.dp),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            //TODO
 
-                            AddToFavoritesBtn(
-                                coroutineScope = coroutineScope,
-                                snackbarHostState = snackbarHostState,
-                                favoritesVM = favoritesVM,
-                                bookId = book.id,
-                                //favoritesId = favoritesId,
-                                isFavoriteBook = isFavoriteBook
-                            )
-
-
-                            Button(
-                                onClick = {showRateDialog = true},
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .width(190.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = DarkBlue
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Star,
-                                    contentDescription = null,
-                                    tint = Yellow,
-                                    modifier = Modifier
-                                        .size(22.dp)
-                                )
-                                Text(
-                                    text = "Rate this Book",
-                                    fontFamily = FontFamily(Font(R.font.poppins_extrabold)),
-                                    color = Beige,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier
-                                        .padding(start = 5.dp)
+                            if (!favoritesLoaded.value) {
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator(color = DarkBlue)
+                                }
+                            } else {
+                                HAHAToFavoritesBtn(
+                                    coroutineScope = coroutineScope,
+                                    snackbarHostState = snackbarHostState,
+                                    favoritesVM = favoritesVM,
+                                    bookId = book.id,
+                                    isFavoriteBook = isFavoriteBook.value
                                 )
                             }
+
+
+                            RateButton(
+                                isBookRated = isBookRated,
+                                onClick = {showRateDialog = true}
+                            )
                         }
                         if (showRateDialog) {
                             Dialog(onDismissRequest = { showRateDialog = false }) {
                                 RateDialog(
                                     onDismiss = { showRateDialog = false },
                                     onRate = { selectedStars ->
+                                        val isBookReviewed = ReviewVM.reviews.any {
+                                            it.user.userId == SupabaseUser.userState.value.userId && it.bookId == id
+                                        }
+
                                         RatingVM.uploadRating(
                                             Rating(
                                                 rating = selectedStars,
                                                 bookId = book.id,
+                                                category = book.category,
                                                 userId = SupabaseUser.userState.value.userId
                                             )
                                         )
                                         showRateDialog = false
-                                        showAskDialog = true
+
+                                        if(!isBookReviewed){
+                                            showAskDialog = true
+                                        }
+
                                     }
                                 )
                             }
@@ -283,13 +286,13 @@ fun DetailScreen(
                                 ReviewDialog(
                                     onDismiss = { showReviewDialog = false },
                                     onPost = { reviewText ->
-                                        ReviewVM.uploadReview(
-                                            Review(
-                                                user = SupabaseUser.userState.value,
-                                                date = formattedDate,
-                                                bookId = book.id,
-                                                review = reviewText
-                                            )
+                                         ReviewVM.uploadReview(
+                                             Review(
+                                                 user = SupabaseUser.userState.value,
+                                                 date = formattedDate,
+                                                 bookId = book.id,
+                                                 review = reviewText
+                                             )
                                         )
                                         showReviewDialog = false
                                         coroutineScope.launch {
@@ -311,7 +314,7 @@ fun DetailScreen(
                     val filteredRatings = RatingVM.ratings.filter { it.bookId == book.id }
 
                     val averageRating = if (filteredRatings.isNotEmpty()) {
-                        String.format("%.1f", filteredRatings.map { it.rating }.average()).toDouble()
+                        filteredRatings.map { it.rating }.average()
                     } else {
                         0.0
                     }

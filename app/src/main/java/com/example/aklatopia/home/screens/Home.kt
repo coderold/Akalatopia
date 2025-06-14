@@ -44,12 +44,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.aklatopia.FBFavBooks
+import com.example.aklatopia.FBFavBooks.favoritesLoaded
 import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.ImageCard
 import com.example.aklatopia.R
+import com.example.aklatopia.SupabaseBooksData
 import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.WindowInfo
 import com.example.aklatopia.assets.SupabaseImageCard
+import com.example.aklatopia.data.FavoritesVM
 import com.example.aklatopia.data.SupabaseUser
 import com.example.aklatopia.data.User
 import com.example.aklatopia.home.components.Bookz
@@ -62,11 +66,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Composable
-fun Home(navHostController: NavHostController){
+fun Home(navHostController: NavHostController, favoritesVM: FavoritesVM){
     val windowInfo = rememberWindowInfo()
     val isScreenRotated = windowInfo.screenWidthInfo is WindowInfo.WindowType.Medium
 
-    val SupabaseBooks = remember { mutableStateListOf<Bookz>() }
     val users = remember { mutableStateListOf<User>() }
 
     LaunchedEffect(Unit){
@@ -74,7 +77,9 @@ fun Home(navHostController: NavHostController){
             val currentId = SupabaseClient.client.auth.currentUserOrNull()?.id
 
             val result = SupabaseClient.client.from("Books").select().decodeList<Bookz>()
-            SupabaseBooks.addAll(result)
+            SupabaseBooksData.booksState.clear()
+            SupabaseBooksData.booksState.addAll(result)
+
 
             val userResult = SupabaseClient.client.from("Users").select().decodeList<User>()
             users.addAll(userResult)
@@ -93,6 +98,16 @@ fun Home(navHostController: NavHostController){
 
             SupabaseUser.verifyUserIdInListAndInsertIfMissing(userIds)
         }
+    }
+
+    LaunchedEffect(favoritesVM.favorites) {
+        FBFavBooks.id.clear()
+        FBFavBooks.id.addAll(
+            favoritesVM.favorites
+                .filter { it.userId == SupabaseUser.userState.value.userId }
+                .map { it.bookId }
+        )
+        favoritesLoaded.value = true
     }
 
     Scaffold(
@@ -134,7 +149,7 @@ fun Home(navHostController: NavHostController){
         ) {
             if (isScreenRotated){
                 LazyColumn{
-                    items(SupabaseBooks){ book->
+                    items(SupabaseBooksData.booksState){ book->
                         HomeBookCard(
                             book.title,
                             label = "Add to List",
@@ -146,7 +161,7 @@ fun Home(navHostController: NavHostController){
             } else{
                 //BookGrid(navHostController)
 
-                if (SupabaseBooks.isEmpty()) {
+                if (SupabaseBooksData.booksState.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = DarkBlue)
                     }
@@ -158,7 +173,7 @@ fun Home(navHostController: NavHostController){
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ){
 
-                    items(SupabaseBooks){ book->
+                    items(SupabaseBooksData.booksState){ book->
                         SupabaseImageCard(
                             pic = book.cover,
                             desc = book.desc,

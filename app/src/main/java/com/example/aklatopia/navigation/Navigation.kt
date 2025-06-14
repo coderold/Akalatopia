@@ -28,6 +28,7 @@ import com.example.aklatopia.data.FavoritesVM
 import com.example.aklatopia.data.FirebaseRatingsVM
 import com.example.aklatopia.data.FirebaseReviewVM
 import com.example.aklatopia.home.components.BookVM
+import com.example.aklatopia.home.screens.FavoritesDetailScreen
 import com.example.aklatopia.home.screens.OnlineDetailScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -85,7 +86,7 @@ fun MainAppScreen(start: String) {
             }
 
         ) {
-            composable("home") { Home(navController) }
+            composable("home") { Home(navController, FavoritesVM()) }
             composable("list") { ListScreen(navController) }
             composable("favorites") { FavoritesScreen(navController, FavoritesVM()) }
             composable("profile") { ProfileScreen(navController, FirebaseRatingsVM())}
@@ -106,6 +107,11 @@ fun MainAppScreen(start: String) {
             composable("onlineDetail/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
                 OnlineDetailScreen(navController, id, FirebaseReviewVM(), FirebaseRatingsVM(), FavoritesVM())
+            }
+
+            composable("favDetail/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
+                FavoritesDetailScreen(navController, id, FirebaseReviewVM(), FirebaseRatingsVM(), FavoritesVM())
             }
 
             composable("listContent/{id}") { backStackEntry ->

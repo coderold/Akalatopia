@@ -209,7 +209,7 @@ fun SignUp(navHostController: NavHostController){
                                             Toast.makeText(context, "Account Created!", Toast.LENGTH_SHORT).show()
                                             navHostController.navigate("main")
                                         }else{
-                                            Toast.makeText(context, "Account Created!", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "Error!", Toast.LENGTH_SHORT).show()
                                         }
 
                                     }

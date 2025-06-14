@@ -25,9 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.aklatopia.FBFavBooks
+import com.example.aklatopia.SupabaseBooksData
 import com.example.aklatopia.SupabaseClient
 import com.example.aklatopia.assets.ImageCard
 import com.example.aklatopia.WindowInfo
+import com.example.aklatopia.assets.FavoriteImageCard
 import com.example.aklatopia.assets.LabeledHeader
 import com.example.aklatopia.assets.SupabaseImageCard
 import com.example.aklatopia.data.FavoritesVM
@@ -50,55 +53,37 @@ fun FavoritesScreen(
     val windowInfo = rememberWindowInfo()
     val isScreenRotated = windowInfo.screenWidthInfo is WindowInfo.WindowType.Medium
 
-    val favoritesId = remember { mutableStateListOf<Int>() }
+    //val favoritesId = remember { mutableStateListOf<Int>() }
+    val favoritesLoaded = remember { mutableStateOf(false) }
 
-    val SupabaseBooks = remember { mutableStateListOf<Bookz>() }
+    val allBooks =  SupabaseBooksData.booksState
 
     LaunchedEffect(favoritesVM.favorites){
-        favoritesId.clear()
-        favoritesId.addAll(favoritesVM.favorites
+        FBFavBooks.id.clear()
+        FBFavBooks.id.addAll(favoritesVM.favorites
             .filter { it.userId == SupabaseUser.userState.value.userId }
             .map { it.bookId })
+        favoritesLoaded.value = true
     }
 
-    LaunchedEffect(Unit){
-        withContext(Dispatchers.IO){
-            val result = SupabaseClient.client.from("Books").select().decodeList<Bookz>()
-            SupabaseBooks.addAll(result)
-        }
-    }
-
-    val favoriteBooks = SupabaseBooks.filter { it.id in favoritesId }
+    val favoriteBooks = allBooks.filter { it.id in FBFavBooks.id }
 
     LabeledHeader(label = "Favorites") { padding->
 
-        if (favoritesId.isNotEmpty()){
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(if (isScreenRotated) 1 else 2),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier
-                    .background(Beige)
-                    .fillMaxSize()
-                    .padding(padding)
-            ){
-
-                if (isScreenRotated){
-                    items(favoriteBooks){ book->
-                        ListBookCard(
-                            book.id,
-                            label = "Remove From Favorites",
-                            navHostController,
-                            onClick = {
-                                favoritesVM.removeFromFavoritesByBookId(book.id)
-                            }
-                        )
-                    }
-
-                } else {
+        if (favoritesLoaded.value){
+            if (FBFavBooks.id.isNotEmpty()){
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(if (isScreenRotated) 1 else 2),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier
+                        .background(Beige)
+                        .fillMaxSize()
+                        .padding(padding)
+                ){
 
                     items(favoriteBooks){ book->
-                        SupabaseImageCard(
+                        FavoriteImageCard(
                             pic = book.cover,
                             desc = book.desc,
                             title = book.title,
@@ -108,21 +93,24 @@ fun FavoritesScreen(
                     }
 
                 }
-
-            }
-        } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(padding)
-            ){
-                Text(
-                    text = "You have no Favorite Books yet.",
-                    fontSize = 18.sp,
+            } else {
+                Box(
                     modifier = Modifier
-                        .padding(top = 30.dp)
-                        .align(Alignment.Center)
-                )
+                        .fillMaxWidth()
+                        .padding(padding)
+                ){
+                    Text(
+                        text = "You have no Favorite Books yet.",
+                        fontSize = 18.sp,
+                        modifier = Modifier
+                            .padding(top = 30.dp)
+                            .align(Alignment.Center)
+                    )
+                }
+            }
+        }else{
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = DarkBlue)
             }
         }
 

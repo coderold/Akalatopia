@@ -41,18 +41,19 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddToFavoritesBtn(
+fun HAHAToFavoritesBtn(
     coroutineScope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
     favoritesVM: FavoritesVM,
     bookId: Int,
-    //favoritesId: SnapshotStateList<Int>,
     isFavoriteBook: Boolean
 ) {
 
+    val fuck = remember { mutableStateOf(isFavoriteBook) }
+
     var showRemoveFromFavDialog by remember { mutableStateOf(false) }
 
-    if (isFavoriteBook){
+    if (fuck.value){
         Button(
             onClick = {
                 showRemoveFromFavDialog = true
@@ -90,6 +91,7 @@ fun AddToFavoritesBtn(
                 )
 
                 FBFavBooks.id.add(bookId)
+                fuck.value = true
             },
             modifier = Modifier
                 .height(40.dp)
@@ -129,6 +131,7 @@ fun AddToFavoritesBtn(
                 }
                 favoritesVM.removeFromFavoritesByBookId(bookId)
                 FBFavBooks.id.remove(bookId)
+                fuck.value = false
 
                 showRemoveFromFavDialog = false
             }

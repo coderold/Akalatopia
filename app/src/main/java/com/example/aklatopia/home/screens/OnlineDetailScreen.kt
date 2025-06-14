@@ -1,5 +1,6 @@
 package com.example.aklatopia.home.screens
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -54,7 +55,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.isPopupLayout
 import androidx.navigation.NavHostController
+import com.example.aklatopia.FBFavBooks
+import com.example.aklatopia.FBFavBooks.favoritesLoaded
 import com.example.aklatopia.OnlineImage
 import com.example.aklatopia.assets.ExtraBoldText
 import com.example.aklatopia.assets.Line
@@ -84,11 +88,13 @@ import com.example.aklatopia.ui.theme.Red
 import com.example.aklatopia.ui.theme.Yellow
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -114,14 +120,9 @@ fun OnlineDetailScreen(
         }
     }
 
-    val favoritesId = remember { mutableStateListOf<Int>() }
-
-    LaunchedEffect(favoritesVM.favorites) {
-        favoritesId.clear()
-        favoritesId.addAll(favoritesVM.favorites.map { it.bookId })
-    }
-
-    val isFavoriteBook = favoritesId.contains(id)
+    val isFavoriteBook = FBFavBooks.id.contains(id)
+    Log.d("asdas", isFavoriteBook.toString())
+    Log.d("list", FBFavBooks.id.toList().toString())
     val isBookRated = RatingVM.ratings.any { it.userId == SupabaseUser.userState.value.userId && it.bookId == id }
 
 
@@ -221,14 +222,21 @@ fun OnlineDetailScreen(
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
 
-                            AddToFavoritesBtn(
-                                coroutineScope = coroutineScope,
-                                snackbarHostState = snackbarHostState,
-                                favoritesVM = favoritesVM,
-                                bookId = book.id,
-                                favoritesId = favoritesId,
-                                isFavoriteBook = isFavoriteBook
-                            )
+                            if (!favoritesLoaded.value) {
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator(color = DarkBlue)
+                                }
+                            } else {
+                                AddToFavoritesBtn(
+                                    coroutineScope = coroutineScope,
+                                    snackbarHostState = snackbarHostState,
+                                    favoritesVM = favoritesVM,
+                                    bookId = book.id,
+                                    //favoritesId = FBFavBooks.id,
+                                    isFavoriteBook = isFavoriteBook
+                                )
+                            }
+
 
                             RateButton(
                                 isBookRated = isBookRated,

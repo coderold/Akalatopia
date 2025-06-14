@@ -3,7 +3,11 @@ package com.example.aklatopia
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import com.example.aklatopia.data.User
+import com.example.aklatopia.home.components.Bookz
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.Auth
@@ -14,6 +18,15 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.storage.Storage
 import io.github.jan.supabase.storage.storage
+
+object SupabaseBooksData {
+    val booksState = mutableStateListOf<Bookz>()
+}
+
+object FBFavBooks {
+    val id = mutableStateListOf<Int>()
+    val favoritesLoaded = mutableStateOf(false)
+}
 
 object SupabaseClient {
     private const val SUPABASE_URL = BuildConfig.SUPABASE_URL
